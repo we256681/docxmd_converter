@@ -24,10 +24,15 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install system dependencies
-      timeout-minutes: 15
+      timeout-minutes: 10
       run: |
+        # Disable man-db triggers to prevent hanging
+        sudo rm -f /var/lib/man-db/auto-update
+        export DEBIAN_FRONTEND=noninteractive
         sudo apt-get update -q
         sudo apt-get install -y -q --no-install-recommends pandoc
+        # Verify pandoc installation
+        pandoc --version
 
     - name: Install dependencies
       timeout-minutes: 20
