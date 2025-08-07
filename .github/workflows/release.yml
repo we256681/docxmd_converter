@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pandoc
+        python -m pip install --upgrade pip
+        pip install build twine pytest pytest-cov
+        pip install -e .
+
+    - name: Run tests
+      run: |
+        pytest tests/ -v
+        python test_conversion.py
+
+    - name: Build package
+      run: python -m build
+
+    - name: Check package
+      run: twine check dist/*
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+        generate_release_notes: true
+        body: |
+          ## 🚀 DocxMD Converter Release ${{ github.ref_name }}
+
+          This release includes new features, bug fixes, and improvements.
+
+          ### Installation
+          ```bash
+          pip install docxmd-converter==${{ github.ref_name }}
+          ```
+
+          ### Usage
+          ```bash
+          # CLI usage
+          docxmd --help
+
+          # GUI usage
+          docxmd-gui
+          ```
+
+          See full changelog and documentation in the repository.
