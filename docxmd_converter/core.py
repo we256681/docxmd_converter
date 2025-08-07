@@ -86,7 +86,11 @@ class DocxMdConverter:
             if direction == "docx2md":
                 self._convert_docx_to_md(input_file, output_file)
             elif direction == "md2docx":
-                self._convert_md_to_docx(input_file, output_file, template_path)
+                self._convert_md_to_docx(
+                    input_file,
+                    output_file,
+                    Path(template_path) if template_path else None,
+                )
             else:
                 raise ConversionError(f"Invalid direction: {direction}")
 

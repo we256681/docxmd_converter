@@ -16,16 +16,16 @@ from .core import ConversionError, DocxMdConverter
 class LogHandler(logging.Handler):
     """Custom logging handler to redirect logs to GUI."""
 
-    def __init__(self, text_widget):
+    def __init__(self, text_widget: tk.Text) -> None:
         super().__init__()
         self.text_widget = text_widget
 
-    def emit(self, record):
+    def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
         # Use after() to ensure thread safety
         self.text_widget.after(0, self._append_text, msg + "\n")
 
-    def _append_text(self, text):
+    def _append_text(self, text: str) -> None:
         self.text_widget.insert(tk.END, text)
         self.text_widget.see(tk.END)
 
@@ -33,7 +33,7 @@ class LogHandler(logging.Handler):
 class DocxMdConverterGUI:
     """GUI application for DocxMD Converter."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.root = tk.Tk()
         self.root.title("DocxMD Converter")
         self.root.geometry("800x600")
@@ -45,8 +45,8 @@ class DocxMdConverterGUI:
         self.direction = tk.StringVar(value="docx2md")
         self.verbose = tk.BooleanVar()
 
-        self.converter = None
-        self.conversion_thread = None
+        self.converter: Optional[DocxMdConverter] = None
+        self.conversion_thread: Optional[threading.Thread] = None
 
         self._create_widgets()
         self._setup_layout()
@@ -55,7 +55,7 @@ class DocxMdConverterGUI:
         # Center window on screen
         self.root.after(100, self._center_window)
 
-    def _center_window(self):
+    def _center_window(self) -> None:
         """Center the window on the screen."""
         self.root.update_idletasks()
         width = self.root.winfo_width()
@@ -64,7 +64,7 @@ class DocxMdConverterGUI:
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    def _create_widgets(self):
+    def _create_widgets(self) -> None:
         """Create all GUI widgets."""
         # Main frame
         self.main_frame = ttk.Frame(self.root, padding="10")
@@ -155,7 +155,7 @@ class DocxMdConverterGUI:
         self.progress = ttk.Progressbar(self.progress_frame, mode="indeterminate")
         self.status_label = ttk.Label(self.progress_frame, text="Ready")
 
-    def _setup_layout(self):
+    def _setup_layout(self) -> None:
         """Setup widget layout."""
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -203,7 +203,7 @@ class DocxMdConverterGUI:
         # Initially disable template controls
         self._on_direction_change()
 
-    def _setup_logging(self):
+    def _setup_logging(self) -> None:
         """Setup logging to display in GUI."""
         # Create a custom handler that writes to our text widget
         self.log_handler = LogHandler(self.log_text)
@@ -213,7 +213,7 @@ class DocxMdConverterGUI:
         # Initially setup with INFO level
         self._update_logging()
 
-    def _update_logging(self):
+    def _update_logging(self) -> None:
         """Update logging configuration based on verbose setting."""
         # Remove existing handler if present
         logger = logging.getLogger("docxmd_converter.core")
@@ -225,19 +225,19 @@ class DocxMdConverterGUI:
         self.log_handler.setLevel(level)
         logger.addHandler(self.log_handler)
 
-    def _browse_source_dir(self):
+    def _browse_source_dir(self) -> None:
         """Browse for source directory."""
         directory = filedialog.askdirectory(title="Select Source Directory")
         if directory:
             self.src_dir.set(directory)
 
-    def _browse_dest_dir(self):
+    def _browse_dest_dir(self) -> None:
         """Browse for destination directory."""
         directory = filedialog.askdirectory(title="Select Destination Directory")
         if directory:
             self.dst_dir.set(directory)
 
-    def _browse_template(self):
+    def _browse_template(self) -> None:
         """Browse for template file."""
         filename = filedialog.askopenfilename(
             title="Select Template File",
@@ -246,7 +246,7 @@ class DocxMdConverterGUI:
         if filename:
             self.template_path.set(filename)
 
-    def _on_direction_change(self):
+    def _on_direction_change(self) -> None:
         """Handle direction change."""
         if self.direction.get() == "md2docx":
             # Enable template controls
@@ -258,13 +258,13 @@ class DocxMdConverterGUI:
             self.template_button.config(state="disabled")
             self.template_path.set("")
 
-    def _clear_log(self):
+    def _clear_log(self) -> None:
         """Clear the log text."""
         self.log_text.config(state=tk.NORMAL)
         self.log_text.delete(1.0, tk.END)
         self.log_text.config(state=tk.DISABLED)
 
-    def _log_message(self, message: str, level: str = "INFO"):
+    def _log_message(self, message: str, level: str = "INFO") -> None:
         """Add a message to the log."""
         self.log_text.config(state=tk.NORMAL)
         timestamp = __import__("datetime").datetime.now().strftime("%H:%M:%S")
@@ -272,7 +272,7 @@ class DocxMdConverterGUI:
         self.log_text.see(tk.END)
         self.log_text.config(state=tk.DISABLED)
 
-    def _validate_inputs(self):
+    def _validate_inputs(self) -> None:
         """Validate user inputs."""
         if not self.src_dir.get():
             raise ConversionError("Please select a source directory")
@@ -301,7 +301,7 @@ class DocxMdConverterGUI:
             if template_path.suffix.lower() != ".docx":
                 raise ConversionError("Template must be a .docx file")
 
-    def _start_conversion(self):
+    def _start_conversion(self) -> None:
         """Start the conversion process in a separate thread."""
         if self.conversion_thread and self.conversion_thread.is_alive():
             messagebox.showwarning("Warning", "Conversion is already in progress!")
@@ -327,7 +327,7 @@ class DocxMdConverterGUI:
         self.conversion_thread.daemon = True
         self.conversion_thread.start()
 
-    def _run_conversion(self):
+    def _run_conversion(self) -> None:
         """Run the actual conversion (in separate thread)."""
         try:
             # Initialize converter
@@ -356,7 +356,9 @@ class DocxMdConverterGUI:
             # Update UI in main thread
             self.root.after(0, self._conversion_complete, 0, 0, str(e))
 
-    def _conversion_complete(self, successful: int, total: int, error: Optional[str]):
+    def _conversion_complete(
+        self, successful: int, total: int, error: Optional[str]
+    ) -> None:
         """Handle conversion completion (runs in main thread)."""
         # Update UI state
         self.convert_button.config(state="normal", text="Start Conversion")
@@ -386,7 +388,7 @@ class DocxMdConverterGUI:
                     f"Converted {successful}/{total} files. Check log for details.",
                 )
 
-    def run(self):
+    def run(self) -> None:
         """Start the GUI application."""
         try:
             # Check if pandoc is available
@@ -398,15 +400,15 @@ class DocxMdConverterGUI:
         self.root.mainloop()
 
 
-def run():
+def run() -> None:
     """Entry point for GUI application."""
     try:
         app = DocxMdConverterGUI()
         app.run()
     except Exception as e:
-        if tk._default_root:
+        try:
             messagebox.showerror("Error", f"Failed to start application: {e}")
-        else:
+        except Exception:
             print(f"Failed to start GUI application: {e}", file=sys.stderr)
             sys.exit(1)
 
