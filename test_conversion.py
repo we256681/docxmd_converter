@@ -170,7 +170,6 @@ def test_cli_with_real_files():
     print("=" * 60)
 
     try:
-        import os
         import subprocess
 
         # Создаём временные директории в текущем проекте
