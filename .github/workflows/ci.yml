@@ -25,8 +25,8 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y pandoc
+        sudo apt-get update -q
+        sudo apt-get install -y -q --no-install-recommends pandoc
 
     - name: Install dependencies
       run: |
