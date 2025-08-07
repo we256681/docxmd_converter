@@ -190,15 +190,12 @@ def test_cli_with_real_files():
 
         print(f"📄 Создан тестовый файл: {test_md}")
 
-        # Определяем команды для текущей ОС
-        if os.name == "nt":
-            python_cmd = "venv\\Scripts\\python"
-        else:
-            python_cmd = "venv/bin/python"
+        # Use current Python interpreter
+        import sys
 
         # Запускаем CLI команду
         cmd = [
-            python_cmd,
+            sys.executable,
             "-m",
             "docxmd_converter.cli",
             "--src",
