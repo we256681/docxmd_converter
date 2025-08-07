@@ -2,16 +2,16 @@
 Core functionality for document conversion between .docx and .md formats.
 """
 
-import os
-import shutil
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple, Union
+from typing import List, Optional, Tuple, Union
+
 import pypandoc
 
 
 class ConversionError(Exception):
     """Custom exception for conversion errors."""
+
     pass
 
 
@@ -36,7 +36,7 @@ class DocxMdConverter:
         if not logger.handlers:
             handler = logging.StreamHandler()
             formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
             handler.setFormatter(formatter)
             logger.addHandler(handler)
@@ -59,7 +59,7 @@ class DocxMdConverter:
         input_file: Union[str, Path],
         output_file: Union[str, Path],
         direction: str,
-        template_path: Optional[Union[str, Path]] = None
+        template_path: Optional[Union[str, Path]] = None,
     ) -> bool:
         """Convert a single file.
 
@@ -100,22 +100,17 @@ class DocxMdConverter:
     def _convert_docx_to_md(self, input_file: Path, output_file: Path) -> None:
         """Convert .docx to .md using pandoc."""
         extra_args = [
-            '--extract-media', str(output_file.parent / 'media'),
-            '--wrap=none'
+            "--extract-media",
+            str(output_file.parent / "media"),
+            "--wrap=none",
         ]
 
         pypandoc.convert_file(
-            str(input_file),
-            'md',
-            outputfile=str(output_file),
-            extra_args=extra_args
+            str(input_file), "md", outputfile=str(output_file), extra_args=extra_args
         )
 
     def _convert_md_to_docx(
-        self,
-        input_file: Path,
-        output_file: Path,
-        template_path: Optional[Path] = None
+        self, input_file: Path, output_file: Path, template_path: Optional[Path] = None
     ) -> None:
         """Convert .md to .docx using pandoc."""
         extra_args = []
@@ -123,15 +118,12 @@ class DocxMdConverter:
         if template_path:
             template_path = Path(template_path)
             if template_path.exists():
-                extra_args.extend(['--reference-doc', str(template_path)])
+                extra_args.extend(["--reference-doc", str(template_path)])
             else:
                 self.logger.warning(f"Template not found: {template_path}")
 
         pypandoc.convert_file(
-            str(input_file),
-            'docx',
-            outputfile=str(output_file),
-            extra_args=extra_args
+            str(input_file), "docx", outputfile=str(output_file), extra_args=extra_args
         )
 
     def convert_directory(
@@ -139,7 +131,7 @@ class DocxMdConverter:
         src_dir: Union[str, Path],
         dst_dir: Union[str, Path],
         direction: str,
-        template_path: Optional[Union[str, Path]] = None
+        template_path: Optional[Union[str, Path]] = None,
     ) -> Tuple[int, int]:
         """Convert all files in directory recursively.
 
@@ -213,7 +205,7 @@ class DocxMdConverter:
             self.logger.error(f"Template file does not exist: {template_path}")
             return False
 
-        if template_path.suffix.lower() != '.docx':
+        if template_path.suffix.lower() != ".docx":
             self.logger.error(f"Template must be a .docx file: {template_path}")
             return False
 

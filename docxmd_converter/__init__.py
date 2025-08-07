@@ -11,8 +11,8 @@ __author__ = "Your Name"
 __email__ = "your.email@example.com"
 __description__ = "Convert between .docx and .md files with template support"
 
-from .core import DocxMdConverter
 from .cli import main as cli_main
+from .core import DocxMdConverter
 from .gui import run as gui_run
 
 __all__ = ["DocxMdConverter", "cli_main", "gui_run"]

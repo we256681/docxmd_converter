@@ -2,16 +2,15 @@
 Graphical user interface for DocxMD Converter.
 """
 
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, scrolledtext
-import threading
-import sys
-from pathlib import Path
-from typing import Optional
 import logging
-import io
+import sys
+import threading
+import tkinter as tk
+from pathlib import Path
+from tkinter import filedialog, messagebox, scrolledtext, ttk
+from typing import Optional
 
-from .core import DocxMdConverter, ConversionError
+from .core import ConversionError, DocxMdConverter
 
 
 class LogHandler(logging.Handler):
@@ -24,7 +23,7 @@ class LogHandler(logging.Handler):
     def emit(self, record):
         msg = self.format(record)
         # Use after() to ensure thread safety
-        self.text_widget.after(0, self._append_text, msg + '\n')
+        self.text_widget.after(0, self._append_text, msg + "\n")
 
     def _append_text(self, text):
         self.text_widget.insert(tk.END, text)
@@ -63,7 +62,7 @@ class DocxMdConverterGUI:
         height = self.root.winfo_height()
         x = (self.root.winfo_screenwidth() // 2) - (width // 2)
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
-        self.root.geometry(f'{width}x{height}+{x}+{y}')
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
     def _create_widgets(self):
         """Create all GUI widgets."""
@@ -72,61 +71,63 @@ class DocxMdConverterGUI:
 
         # Title
         self.title_label = ttk.Label(
-            self.main_frame,
-            text="DocxMD Converter",
-            font=("Arial", 16, "bold")
+            self.main_frame, text="DocxMD Converter", font=("Arial", 16, "bold")
         )
 
         # Source directory
-        self.src_frame = ttk.LabelFrame(self.main_frame, text="Source Directory", padding="5")
+        self.src_frame = ttk.LabelFrame(
+            self.main_frame, text="Source Directory", padding="5"
+        )
         self.src_entry = ttk.Entry(self.src_frame, textvariable=self.src_dir, width=60)
         self.src_button = ttk.Button(
-            self.src_frame,
-            text="Browse...",
-            command=self._browse_source_dir
+            self.src_frame, text="Browse...", command=self._browse_source_dir
         )
 
         # Destination directory
-        self.dst_frame = ttk.LabelFrame(self.main_frame, text="Destination Directory", padding="5")
+        self.dst_frame = ttk.LabelFrame(
+            self.main_frame, text="Destination Directory", padding="5"
+        )
         self.dst_entry = ttk.Entry(self.dst_frame, textvariable=self.dst_dir, width=60)
         self.dst_button = ttk.Button(
-            self.dst_frame,
-            text="Browse...",
-            command=self._browse_dest_dir
+            self.dst_frame, text="Browse...", command=self._browse_dest_dir
         )
 
         # Conversion direction
-        self.direction_frame = ttk.LabelFrame(self.main_frame, text="Conversion Direction", padding="5")
+        self.direction_frame = ttk.LabelFrame(
+            self.main_frame, text="Conversion Direction", padding="5"
+        )
         self.direction_docx2md = ttk.Radiobutton(
             self.direction_frame,
             text="DOCX → Markdown",
             variable=self.direction,
             value="docx2md",
-            command=self._on_direction_change
+            command=self._on_direction_change,
         )
         self.direction_md2docx = ttk.Radiobutton(
             self.direction_frame,
             text="Markdown → DOCX",
             variable=self.direction,
             value="md2docx",
-            command=self._on_direction_change
+            command=self._on_direction_change,
         )
 
         # Template
-        self.template_frame = ttk.LabelFrame(self.main_frame, text="Template (Optional)", padding="5")
-        self.template_entry = ttk.Entry(self.template_frame, textvariable=self.template_path, width=60)
+        self.template_frame = ttk.LabelFrame(
+            self.main_frame, text="Template (Optional)", padding="5"
+        )
+        self.template_entry = ttk.Entry(
+            self.template_frame, textvariable=self.template_path, width=60
+        )
         self.template_button = ttk.Button(
-            self.template_frame,
-            text="Browse...",
-            command=self._browse_template
+            self.template_frame, text="Browse...", command=self._browse_template
         )
 
         # Options
-        self.options_frame = ttk.LabelFrame(self.main_frame, text="Options", padding="5")
+        self.options_frame = ttk.LabelFrame(
+            self.main_frame, text="Options", padding="5"
+        )
         self.verbose_check = ttk.Checkbutton(
-            self.options_frame,
-            text="Verbose logging",
-            variable=self.verbose
+            self.options_frame, text="Verbose logging", variable=self.verbose
         )
 
         # Buttons
@@ -135,29 +136,23 @@ class DocxMdConverterGUI:
             self.button_frame,
             text="Start Conversion",
             command=self._start_conversion,
-            style="Accent.TButton"
+            style="Accent.TButton",
         )
         self.clear_button = ttk.Button(
-            self.button_frame,
-            text="Clear Log",
-            command=self._clear_log
+            self.button_frame, text="Clear Log", command=self._clear_log
         )
 
         # Log output
-        self.log_frame = ttk.LabelFrame(self.main_frame, text="Conversion Log", padding="5")
+        self.log_frame = ttk.LabelFrame(
+            self.main_frame, text="Conversion Log", padding="5"
+        )
         self.log_text = scrolledtext.ScrolledText(
-            self.log_frame,
-            height=15,
-            width=80,
-            state=tk.DISABLED
+            self.log_frame, height=15, width=80, state=tk.DISABLED
         )
 
         # Progress bar
         self.progress_frame = ttk.Frame(self.main_frame)
-        self.progress = ttk.Progressbar(
-            self.progress_frame,
-            mode='indeterminate'
-        )
+        self.progress = ttk.Progressbar(self.progress_frame, mode="indeterminate")
         self.status_label = ttk.Label(self.progress_frame, text="Ready")
 
     def _setup_layout(self):
@@ -212,7 +207,7 @@ class DocxMdConverterGUI:
         """Setup logging to display in GUI."""
         # Create a custom handler that writes to our text widget
         self.log_handler = LogHandler(self.log_text)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         self.log_handler.setFormatter(formatter)
 
         # Initially setup with INFO level
@@ -221,7 +216,7 @@ class DocxMdConverterGUI:
     def _update_logging(self):
         """Update logging configuration based on verbose setting."""
         # Remove existing handler if present
-        logger = logging.getLogger('docxmd_converter.core')
+        logger = logging.getLogger("docxmd_converter.core")
         logger.handlers = [h for h in logger.handlers if not isinstance(h, LogHandler)]
 
         # Set level and add handler
@@ -246,7 +241,7 @@ class DocxMdConverterGUI:
         """Browse for template file."""
         filename = filedialog.askopenfilename(
             title="Select Template File",
-            filetypes=[("Word Documents", "*.docx"), ("All Files", "*.*")]
+            filetypes=[("Word Documents", "*.docx"), ("All Files", "*.*")],
         )
         if filename:
             self.template_path.set(filename)
@@ -272,7 +267,7 @@ class DocxMdConverterGUI:
     def _log_message(self, message: str, level: str = "INFO"):
         """Add a message to the log."""
         self.log_text.config(state=tk.NORMAL)
-        timestamp = __import__('datetime').datetime.now().strftime('%H:%M:%S')
+        timestamp = __import__("datetime").datetime.now().strftime("%H:%M:%S")
         self.log_text.insert(tk.END, f"[{timestamp}] {level}: {message}\n")
         self.log_text.see(tk.END)
         self.log_text.config(state=tk.DISABLED)
@@ -287,19 +282,23 @@ class DocxMdConverterGUI:
 
         src_path = Path(self.src_dir.get())
         if not src_path.exists() or not src_path.is_dir():
-            raise ConversionError(f"Source directory does not exist: {self.src_dir.get()}")
+            raise ConversionError(
+                f"Source directory does not exist: {self.src_dir.get()}"
+            )
 
         # Validate template if provided
         template = self.template_path.get().strip()
         if template:
             if self.direction.get() != "md2docx":
-                raise ConversionError("Template can only be used with Markdown → DOCX conversion")
+                raise ConversionError(
+                    "Template can only be used with Markdown → DOCX conversion"
+                )
 
             template_path = Path(template)
             if not template_path.exists():
                 raise ConversionError(f"Template file does not exist: {template}")
 
-            if template_path.suffix.lower() != '.docx':
+            if template_path.suffix.lower() != ".docx":
                 raise ConversionError("Template must be a .docx file")
 
     def _start_conversion(self):
@@ -336,14 +335,18 @@ class DocxMdConverterGUI:
             self.converter = DocxMdConverter(log_level=log_level)
 
             # Get template path
-            template = self.template_path.get().strip() if self.template_path.get().strip() else None
+            template = (
+                self.template_path.get().strip()
+                if self.template_path.get().strip()
+                else None
+            )
 
             # Run conversion
             successful, total = self.converter.convert_directory(
                 src_dir=self.src_dir.get(),
                 dst_dir=self.dst_dir.get(),
                 direction=self.direction.get(),
-                template_path=template
+                template_path=template,
             )
 
             # Update UI in main thread
@@ -365,13 +368,23 @@ class DocxMdConverterGUI:
             messagebox.showerror("Conversion Error", error)
         else:
             if successful == total:
-                self.status_label.config(text=f"✅ Successfully converted all {total} files")
+                self.status_label.config(
+                    text=f"✅ Successfully converted all {total} files"
+                )
                 self._log_message(f"Successfully converted all {total} files", "INFO")
-                messagebox.showinfo("Success", f"Successfully converted all {total} files!")
+                messagebox.showinfo(
+                    "Success", f"Successfully converted all {total} files!"
+                )
             else:
-                self.status_label.config(text=f"⚠️ Converted {successful}/{total} files")
-                self._log_message(f"Converted {successful}/{total} files (some errors occurred)", "WARNING")
-                messagebox.showwarning("Partial Success", f"Converted {successful}/{total} files. Check log for details.")
+                self.status_label.config(text=f"⚠️ Done {successful}/{total} files")
+                self._log_message(
+                    f"Converted {successful}/{total} files (some errors occurred)",
+                    "WARNING",
+                )
+                messagebox.showwarning(
+                    "Partial Success",
+                    f"Converted {successful}/{total} files. Check log for details.",
+                )
 
     def run(self):
         """Start the GUI application."""

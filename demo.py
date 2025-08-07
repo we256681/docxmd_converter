@@ -10,18 +10,22 @@ from pathlib import Path
 # Добавим путь к пакету
 sys.path.insert(0, str(Path(__file__).parent))
 
+
 def test_imports():
     """Тестируем импорты всех модулей."""
     print("🔍 Тестируем импорты модулей...")
 
     try:
         from docxmd_converter import DocxMdConverter, cli_main, gui_run
+
         print("✅ Основные компоненты импортированы успешно")
 
         from docxmd_converter.core import ConversionError
+
         print("✅ Исключения импортированы")
 
         from docxmd_converter.cli import create_parser, validate_args
+
         print("✅ CLI компоненты импортированы")
 
         return True
@@ -29,6 +33,7 @@ def test_imports():
     except Exception as e:
         print(f"❌ Ошибка импорта: {e}")
         return False
+
 
 def test_cli_parser():
     """Тестируем парсер командной строки."""
@@ -40,11 +45,9 @@ def test_cli_parser():
         parser = create_parser()
 
         # Тест корректных аргументов
-        args = parser.parse_args([
-            '--src', './documents',
-            '--dst', './output',
-            '--direction', 'docx2md'
-        ])
+        args = parser.parse_args(
+            ["--src", "./documents", "--dst", "./output", "--direction", "docx2md"]
+        )
 
         print("✅ Парсер корректно обрабатывает аргументы")
         print(f"   Источник: {args.src}")
@@ -57,12 +60,13 @@ def test_cli_parser():
         print(f"❌ Ошибка парсера: {e}")
         return False
 
+
 def test_converter_class():
     """Тестируем класс конвертера (без pandoc)."""
     print("\n🔍 Тестируем DocxMdConverter класс...")
 
     try:
-        from docxmd_converter.core import DocxMdConverter, ConversionError
+        from docxmd_converter.core import ConversionError, DocxMdConverter
 
         # Попытка создать конвертер (ожидаем ошибку pandoc)
         try:
@@ -86,6 +90,7 @@ def test_converter_class():
         print(f"❌ Ошибка тестирования класса: {e}")
         return False
 
+
 def show_package_structure():
     """Показываем структуру пакета."""
     print("\n📁 Структура пакета:")
@@ -93,7 +98,7 @@ def show_package_structure():
     package_dir = Path("docxmd_converter")
     if package_dir.exists():
         for file in package_dir.iterdir():
-            if file.is_file() and file.suffix == '.py':
+            if file.is_file() and file.suffix == ".py":
                 size = file.stat().st_size
                 print(f"   📄 {file.name} ({size} bytes)")
 
@@ -105,6 +110,7 @@ def show_package_structure():
         else:
             print(f"   ❌ {file} (отсутствует)")
 
+
 def show_entry_points():
     """Показываем entry points."""
     print("\n🚀 Entry Points (команды после установки):")
@@ -112,17 +118,21 @@ def show_entry_points():
     print("   🖥️  docxmd-gui     - GUI интерфейс")
 
     # Проверим что команды доступны
-    import subprocess
     import os
+    import subprocess
 
-    venv_python = "venv/bin/python" if os.name != 'nt' else "venv\\Scripts\\python.exe"
+    venv_python = "venv/bin/python" if os.name != "nt" else "venv\\Scripts\\python.exe"
 
     try:
         result = subprocess.run(
-            [venv_python, "-c", "import docxmd_converter.cli; print('CLI модуль готов')"],
+            [
+                venv_python,
+                "-c",
+                "import docxmd_converter.cli; print('CLI модуль готов')",
+            ],
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent
+            cwd=Path(__file__).parent,
         )
         if result.returncode == 0:
             print("   ✅ CLI модуль готов к работе")
@@ -131,6 +141,7 @@ def show_entry_points():
 
     except Exception as e:
         print(f"   ⚠️  Не удалось проверить CLI: {e}")
+
 
 def show_next_steps():
     """Показываем следующие шаги."""
@@ -155,6 +166,7 @@ def show_next_steps():
     print("   pip install build twine")
     print("   python -m build")
     print("   twine upload dist/*")
+
 
 def main():
     """Основная демонстрация."""
@@ -194,6 +206,7 @@ def main():
         print("⚠️  Есть проблемы, которые нужно исправить")
 
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

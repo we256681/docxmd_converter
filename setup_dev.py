@@ -6,9 +6,9 @@ This script helps with setting up the development environment
 and installing the package in development mode.
 """
 
+import os
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 
@@ -19,11 +19,7 @@ def run_command(cmd, description=""):
 
     try:
         result = subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-            capture_output=True,
-            text=True
+            cmd, shell=True, check=True, capture_output=True, text=True
         )
         if result.stdout.strip():
             print(f"   {result.stdout.strip()}")
@@ -51,12 +47,9 @@ def check_pandoc():
     """Check if Pandoc is installed."""
     try:
         result = subprocess.run(
-            ["pandoc", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
+            ["pandoc", "--version"], capture_output=True, text=True, check=True
         )
-        version_line = result.stdout.split('\n')[0]
+        version_line = result.stdout.split("\n")[0]
         print(f"✅ {version_line} detected")
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -80,7 +73,7 @@ def setup_virtual_environment():
 def install_package():
     """Install package in development mode."""
     # Determine pip command based on OS
-    if os.name == 'nt':  # Windows
+    if os.name == "nt":  # Windows
         pip_cmd = "venv\\Scripts\\pip"
     else:  # Unix/Linux/macOS
         pip_cmd = "venv/bin/pip"
@@ -101,7 +94,7 @@ def install_package():
 def run_tests():
     """Run the test suite."""
     # Determine python command for venv
-    if os.name == 'nt':  # Windows
+    if os.name == "nt":  # Windows
         python_cmd = "venv\\Scripts\\python"
     else:  # Unix/Linux/macOS
         python_cmd = "venv/bin/python"
@@ -143,7 +136,7 @@ def main():
     # Final instructions
     print("\n🎉 Setup completed!")
     print("\nTo activate the virtual environment:")
-    if os.name == 'nt':
+    if os.name == "nt":
         print("   .\\venv\\Scripts\\activate")
     else:
         print("   source venv/bin/activate")

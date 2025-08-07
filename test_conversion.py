@@ -3,13 +3,14 @@
 Полный функциональный тест DocxMD Converter с реальными файлами.
 """
 
-import sys
-from pathlib import Path
-import tempfile
 import shutil
+import sys
+import tempfile
+from pathlib import Path
 
 # Добавим путь к пакету
 sys.path.insert(0, str(Path(__file__).parent))
+
 
 def create_test_markdown():
     """Создаём тестовый markdown файл."""
@@ -51,6 +52,7 @@ converter.convert_file("input.md", "output.docx", "md2docx")
 """
     return content
 
+
 def test_real_conversion():
     """Тест реальной конвертации файлов."""
     print("🧪 Запуск полнофункционального теста конвертации")
@@ -78,14 +80,17 @@ def test_real_conversion():
 
             # 1. Простой markdown
             md1 = src_dir / "test1.md"
-            md1.write_text(create_test_markdown(), encoding='utf-8')
+            md1.write_text(create_test_markdown(), encoding="utf-8")
             test_files.append(md1)
 
             # 2. Markdown в подпапке
             subdir = src_dir / "subfolder"
             subdir.mkdir()
             md2 = subdir / "test2.md"
-            md2.write_text("# Документ из подпапки\n\nЭто тест **сохранения структуры** папок.", encoding='utf-8')
+            md2.write_text(
+                "# Документ из подпапки\n\nЭто тест **сохранения структуры** папок.",
+                encoding="utf-8",
+            )
             test_files.append(md2)
 
             print(f"📄 Созданы тестовые файлы:")
@@ -101,9 +106,7 @@ def test_real_conversion():
             # Тест 1: MD → DOCX
             print("\n🔄 Тест 1: Конвертация MD → DOCX")
             successful, total = converter.convert_directory(
-                src_dir=src_dir,
-                dst_dir=dst_dir,
-                direction="md2docx"
+                src_dir=src_dir, dst_dir=dst_dir, direction="md2docx"
             )
 
             print(f"📊 Результат: {successful}/{total} файлов конвертировано")
@@ -124,9 +127,7 @@ def test_real_conversion():
             back_dir.mkdir()
 
             successful2, total2 = converter.convert_directory(
-                src_dir=dst_dir,
-                dst_dir=back_dir,
-                direction="docx2md"
+                src_dir=dst_dir, dst_dir=back_dir, direction="docx2md"
             )
 
             print(f"📊 Результат: {successful2}/{total2} файлов конвертировано обратно")
@@ -144,7 +145,9 @@ def test_real_conversion():
             print("📊 ИТОГОВЫЕ РЕЗУЛЬТАТЫ:")
             print(f"   ✅ MD → DOCX: {successful}/{total}")
             print(f"   ✅ DOCX → MD: {successful2}/{total2}")
-            print(f"   📁 Структура папок: {'сохранена' if len(md_files) == len(test_files) else 'нарушена'}")
+            structure_ok = len(md_files) == len(test_files)
+            status = 'сохранена' if structure_ok else 'нарушена'
+            print(f"   📁 Структура папок: {status}")
 
             if successful == total and successful2 == total2:
                 print("🎉 Все тесты пройдены успешно!")
@@ -156,8 +159,10 @@ def test_real_conversion():
     except Exception as e:
         print(f"❌ Ошибка теста: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def test_cli_with_real_files():
     """Тест CLI с реальными файлами."""
@@ -165,8 +170,8 @@ def test_cli_with_real_files():
     print("=" * 60)
 
     try:
-        import subprocess
         import os
+        import subprocess
 
         # Создаём временные директории в текущем проекте
         test_dir = Path("temp_test")
@@ -179,44 +184,48 @@ def test_cli_with_real_files():
 
         # Создаём тестовый файл
         test_md = src_dir / "cli_test.md"
-        test_md.write_text("# CLI Test\n\nЭто тест **CLI интерфейса**.", encoding='utf-8')
+        test_md.write_text(
+            "# CLI Test\n\nЭто тест **CLI интерфейса**.", encoding="utf-8"
+        )
 
         print(f"📄 Создан тестовый файл: {test_md}")
 
         # Определяем команды для текущей ОС
-        if os.name == 'nt':
+        if os.name == "nt":
             python_cmd = "venv\\Scripts\\python"
         else:
             python_cmd = "venv/bin/python"
 
         # Запускаем CLI команду
         cmd = [
-            python_cmd, "-m", "docxmd_converter.cli",
-            "--src", str(src_dir),
-            "--dst", str(dst_dir),
-            "--direction", "md2docx",
-            "--verbose"
+            python_cmd,
+            "-m",
+            "docxmd_converter.cli",
+            "--src",
+            str(src_dir),
+            "--dst",
+            str(dst_dir),
+            "--direction",
+            "md2docx",
+            "--verbose",
         ]
 
         print("🖥️  Запуск CLI команды:")
         print(f"   {' '.join(cmd)}")
 
         result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent
+            cmd, capture_output=True, text=True, cwd=Path(__file__).parent
         )
 
         print(f"📊 Код возврата: {result.returncode}")
 
         if result.stdout:
             print("📤 Вывод:")
-            print("   " + result.stdout.replace('\n', '\n   '))
+            print("   " + result.stdout.replace("\n", "\n   "))
 
         if result.stderr:
             print("⚠️  Ошибки:")
-            print("   " + result.stderr.replace('\n', '\n   '))
+            print("   " + result.stderr.replace("\n", "\n   "))
 
         # Проверяем результат
         output_files = list(dst_dir.rglob("*.docx"))
@@ -237,6 +246,7 @@ def test_cli_with_real_files():
     except Exception as e:
         print(f"❌ Ошибка CLI теста: {e}")
         return False
+
 
 def main():
     """Главная функция тестирования."""
@@ -273,6 +283,7 @@ def main():
     print("=" * 70)
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

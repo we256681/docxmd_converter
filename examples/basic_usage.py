@@ -7,8 +7,6 @@ programmatically for various conversion tasks.
 """
 
 from pathlib import Path
-import tempfile
-import os
 
 # Import the converter (assuming package is installed)
 try:
@@ -16,6 +14,7 @@ try:
 except ImportError:
     # If running from source directory
     import sys
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from docxmd_converter import DocxMdConverter
 
@@ -33,9 +32,7 @@ def example_single_file_conversion():
 
     # Convert .docx to .md
     success = converter.convert_file(
-        input_file=input_file,
-        output_file=output_file,
-        direction="docx2md"
+        input_file=input_file, output_file=output_file, direction="docx2md"
     )
 
     if success:
@@ -53,14 +50,12 @@ def example_directory_conversion():
 
     # Example directory paths
     src_directory = "./documents"  # Directory with .docx files
-    dst_directory = "./markdown"   # Output directory for .md files
+    dst_directory = "./markdown"  # Output directory for .md files
 
     # Convert all .docx files to .md
     try:
         successful, total = converter.convert_directory(
-            src_dir=src_directory,
-            dst_dir=dst_directory,
-            direction="docx2md"
+            src_dir=src_directory, dst_dir=dst_directory, direction="docx2md"
         )
 
         print(f"✅ Converted {successful}/{total} files")
@@ -77,9 +72,9 @@ def example_template_conversion():
     converter = DocxMdConverter(log_level="INFO")
 
     # Example paths
-    src_directory = "./markdown"      # Directory with .md files
-    dst_directory = "./documents"     # Output directory for .docx files
-    template_file = "./template.docx" # Template file
+    src_directory = "./markdown"  # Directory with .md files
+    dst_directory = "./documents"  # Output directory for .docx files
+    template_file = "./template.docx"  # Template file
 
     # First, validate the template
     if Path(template_file).exists():
@@ -94,7 +89,7 @@ def example_template_conversion():
                     src_dir=src_directory,
                     dst_dir=dst_directory,
                     direction="md2docx",
-                    template_path=template_file
+                    template_path=template_file,
                 )
 
                 print(f"✅ Converted {successful}/{total} files using template")
@@ -117,7 +112,8 @@ def example_create_sample_files():
 
     # Create a sample markdown file
     sample_md = Path("./markdown/sample.md")
-    sample_md.write_text("""
+    sample_md.write_text(
+        """
 # Sample Document
 
 This is a **sample** document for testing the DocxMD Converter.
@@ -154,13 +150,15 @@ converter.convert_file("input.docx", "output.md", "docx2md")
 ---
 
 That's all for this sample document!
-""")
+"""
+    )
 
     print(f"✅ Created sample file: {sample_md}")
 
     # Create a simple template instruction
     template_instruction = Path("./template_instructions.txt")
-    template_instruction.write_text("""
+    template_instruction.write_text(
+        """
 Template Creation Instructions:
 ==============================
 
@@ -176,7 +174,8 @@ To create a template for .md → .docx conversion:
 4. Use it with: --template your_template.docx
 
 The template's formatting will be applied to converted documents.
-""")
+"""
+    )
 
     print(f"✅ Created template instructions: {template_instruction}")
 

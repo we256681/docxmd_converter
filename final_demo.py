@@ -4,11 +4,12 @@
 Показывает что проект полностью готов к публикации и использованию.
 """
 
-import sys
+import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
-import shutil
+
 
 def print_header(title):
     """Красивый заголовок."""
@@ -16,13 +17,16 @@ def print_header(title):
     print(f"🎯 {title}")
     print("=" * 70)
 
+
 def print_success(message):
     """Сообщение об успехе."""
     print(f"✅ {message}")
 
+
 def print_info(message):
     """Информационное сообщение."""
     print(f"ℹ️  {message}")
+
 
 def check_project_structure():
     """Проверка структуры проекта."""
@@ -39,7 +43,7 @@ def check_project_structure():
         "requirements.txt",
         ".github/workflows/ci.yml",
         ".github/workflows/release.yml",
-        "PYPI_DEPLOYMENT.md"
+        "PYPI_DEPLOYMENT.md",
     ]
 
     missing = []
@@ -59,6 +63,7 @@ def check_project_structure():
         print(f"⚠️  Отсутствуют файлы: {missing}")
         return False
 
+
 def check_package_installation():
     """Проверка установки пакета."""
     print_header("Проверка установки пакета")
@@ -66,14 +71,17 @@ def check_package_installation():
     try:
         # Импорт основных модулей
         from docxmd_converter import DocxMdConverter, cli_main, gui_run
+
         print_success("Основные модули импортированы")
 
         from docxmd_converter.core import ConversionError
+
         print_success("Исключения импортированы")
 
         # Проверка версии
         import docxmd_converter
-        version = getattr(docxmd_converter, '__version__', '0.1.0')
+
+        version = getattr(docxmd_converter, "__version__", "0.1.0")
         print_success(f"Версия пакета: {version}")
 
         return True
@@ -82,24 +90,28 @@ def check_package_installation():
         print(f"❌ Ошибка импорта: {e}")
         return False
 
+
 def check_cli_commands():
     """Проверка CLI команд."""
     print_header("Проверка CLI команд")
 
     commands = [
         (["python", "-m", "docxmd_converter.cli", "--help"], "CLI модуль"),
-        (["python", "-c", "from docxmd_converter.gui import run; print('GUI готов')"], "GUI модуль")
+        (
+            [
+                "python",
+                "-c",
+                "from docxmd_converter.gui import run; print('GUI готов')",
+            ],
+            "GUI модуль",
+        ),
     ]
 
     success_count = 0
     for cmd, name in commands:
         try:
             result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=10,
-                cwd=Path.cwd()
+                cmd, capture_output=True, text=True, timeout=10, cwd=Path.cwd()
             )
 
             if result.returncode == 0:
@@ -112,6 +124,7 @@ def check_cli_commands():
             print(f"❌ {name}: ошибка {e}")
 
     return success_count == len(commands)
+
 
 def check_conversion_functionality():
     """Проверка функциональности конвертации."""
@@ -133,7 +146,7 @@ def check_conversion_functionality():
                 "- ✅ Конвертация MD → DOCX\n"
                 "- ✅ Конвертация DOCX → MD\n"
                 "- ✅ Поддержка русского языка\n",
-                encoding='utf-8'
+                encoding="utf-8",
             )
 
             # Создаем конвертер
@@ -169,14 +182,12 @@ def check_conversion_functionality():
         print(f"❌ Ошибка конвертации: {e}")
         return False
 
+
 def check_github_actions():
     """Проверка GitHub Actions конфигурации."""
     print_header("Проверка GitHub Actions")
 
-    workflows = [
-        ".github/workflows/ci.yml",
-        ".github/workflows/release.yml"
-    ]
+    workflows = [".github/workflows/ci.yml", ".github/workflows/release.yml"]
 
     for workflow in workflows:
         path = Path(workflow)
@@ -195,6 +206,7 @@ def check_github_actions():
 
     return True
 
+
 def check_pypi_readiness():
     """Проверка готовности к публикации на PyPI."""
     print_header("Проверка готовности к PyPI")
@@ -205,7 +217,7 @@ def check_pypi_readiness():
             ["python", "-m", "build", "--wheel", "--sdist"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode == 0:
@@ -231,14 +243,24 @@ def check_pypi_readiness():
         print(f"❌ Ошибка проверки сборки: {e}")
         return False
 
+
 def show_project_summary():
     """Показать итоговую информацию о проекте."""
     print_header("Итоговая информация о проекте")
 
     # Статистика файлов
-    py_files = len(list(Path(".").rglob("*.py"))) - len(list(Path("venv").rglob("*.py"))) if Path("venv").exists() else len(list(Path(".").rglob("*.py")))
+    py_files = (
+        len(list(Path(".").rglob("*.py"))) - len(list(Path("venv").rglob("*.py")))
+        if Path("venv").exists()
+        else len(list(Path(".").rglob("*.py")))
+    )
     md_files = len(list(Path(".").glob("*.md")))
-    config_files = len(list(Path(".").rglob("*.yml"))) + len(list(Path(".").rglob("*.yaml"))) + len(list(Path(".").rglob("*.toml"))) + len(list(Path(".").rglob("*.cfg")))
+    config_files = (
+        len(list(Path(".").rglob("*.yml")))
+        + len(list(Path(".").rglob("*.yaml")))
+        + len(list(Path(".").rglob("*.toml")))
+        + len(list(Path(".").rglob("*.cfg")))
+    )
 
     print_info(f"Python файлов: {py_files}")
     print_info(f"Документации: {md_files}")
@@ -251,6 +273,7 @@ def show_project_summary():
         print_info(f"Размер пакета: {size // 1024}KB")
 
     print_success("Проект готов к публикации на PyPI!")
+
 
 def main():
     """Основная функция демонстрации."""
@@ -300,6 +323,7 @@ def main():
     print("=" * 70)
 
     return passed == total
+
 
 if __name__ == "__main__":
     success = main()

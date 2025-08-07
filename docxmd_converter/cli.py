@@ -5,16 +5,15 @@ Command-line interface for DocxMD Converter.
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
 
-from .core import DocxMdConverter, ConversionError
+from .core import ConversionError, DocxMdConverter
 
 
 def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
-        prog='docxmd',
-        description='Convert between .docx and .md files with template support',
+        prog="docxmd",
+        description="Convert between .docx and .md files with template support",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -22,52 +21,47 @@ Examples:
   docxmd --src ./documents --dst ./markdown --direction docx2md
 
   # Convert all .md files to .docx with template
-  docxmd --src ./markdown --dst ./documents --direction md2docx --template ./template.docx
+  docxmd --src ./markdown --dst ./documents --direction md2docx \\
+         --template ./template.docx
 
   # Enable debug logging
   docxmd --src ./input --dst ./output --direction docx2md --verbose
-        """
+        """,
     )
 
     parser.add_argument(
-        '--src',
+        "--src",
         type=str,
         required=True,
-        help='Source directory containing files to convert'
+        help="Source directory containing files to convert",
     )
 
     parser.add_argument(
-        '--dst',
+        "--dst",
         type=str,
         required=True,
-        help='Destination directory for converted files'
+        help="Destination directory for converted files",
     )
 
     parser.add_argument(
-        '--direction',
+        "--direction",
         type=str,
         required=True,
-        choices=['docx2md', 'md2docx'],
-        help='Conversion direction: docx2md or md2docx'
+        choices=["docx2md", "md2docx"],
+        help="Conversion direction: docx2md or md2docx",
     )
 
     parser.add_argument(
-        '--template',
+        "--template",
         type=str,
-        help='Path to .docx template file (only for md2docx direction)'
+        help="Path to .docx template file (only for md2docx direction)",
     )
 
     parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging'
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-    parser.add_argument(
-        '--version',
-        action='version',
-        version='%(prog)s 0.1.0'
-    )
+    parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
 
     return parser
 
@@ -83,16 +77,14 @@ def validate_args(args: argparse.Namespace) -> None:
 
     # Validate template if provided
     if args.template:
-        if args.direction != 'md2docx':
-            raise ConversionError(
-                "Template can only be used with md2docx direction"
-            )
+        if args.direction != "md2docx":
+            raise ConversionError("Template can only be used with md2docx direction")
 
         template_path = Path(args.template)
         if not template_path.exists():
             raise ConversionError(f"Template file does not exist: {args.template}")
 
-        if template_path.suffix.lower() != '.docx':
+        if template_path.suffix.lower() != ".docx":
             raise ConversionError(f"Template must be a .docx file: {args.template}")
 
 
@@ -114,7 +106,7 @@ def main() -> int:
             src_dir=args.src,
             dst_dir=args.dst,
             direction=args.direction,
-            template_path=args.template
+            template_path=args.template,
         )
 
         if successful == total:
@@ -135,5 +127,5 @@ def main() -> int:
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
