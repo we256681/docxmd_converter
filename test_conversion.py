@@ -146,7 +146,7 @@ def test_real_conversion():
             print(f"   ✅ MD → DOCX: {successful}/{total}")
             print(f"   ✅ DOCX → MD: {successful2}/{total2}")
             structure_ok = len(md_files) == len(test_files)
-            status = 'сохранена' if structure_ok else 'нарушена'
+            status = "сохранена" if structure_ok else "нарушена"
             print(f"   📁 Структура папок: {status}")
 
             if successful == total and successful2 == total2:
