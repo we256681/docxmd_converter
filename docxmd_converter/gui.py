@@ -101,8 +101,6 @@ class DocxMdConverterGUI:
             self.dst_frame, text="Browse...", command=self._browse_dest_dir
         )
 
-
-
         # Template
         self.template_frame = ttk.LabelFrame(
             self.main_frame, text="Template (Optional)", padding="5"
@@ -150,48 +148,62 @@ class DocxMdConverterGUI:
             self.postprocess_frame,
             text="Apply document processing after conversion",
             variable=self.post_process,
-            command=self._on_postprocess_toggle
+            command=self._on_postprocess_toggle,
         )
 
         # Processor type selection
         self.processor_frame = ttk.Frame(self.postprocess_frame)
         self.processor_basic = ttk.Radiobutton(
-            self.processor_frame, text="Basic processor",
-            variable=self.processor_type, value="basic",
-            state="disabled"
+            self.processor_frame,
+            text="Basic processor",
+            variable=self.processor_type,
+            value="basic",
+            state="disabled",
         )
         self.processor_advanced = ttk.Radiobutton(
-            self.processor_frame, text="Advanced processor",
-            variable=self.processor_type, value="advanced",
-            state="disabled"
+            self.processor_frame,
+            text="Advanced processor",
+            variable=self.processor_type,
+            value="advanced",
+            state="disabled",
         )
 
         # Report options
         self.report_frame = ttk.Frame(self.postprocess_frame)
         self.report_console = ttk.Radiobutton(
-            self.report_frame, text="Console report",
-            variable=self.report_format, value="console",
-            state="disabled"
+            self.report_frame,
+            text="Console report",
+            variable=self.report_format,
+            value="console",
+            state="disabled",
         )
         self.report_file = ttk.Radiobutton(
-            self.report_frame, text="File report",
-            variable=self.report_format, value="file",
-            state="disabled"
+            self.report_frame,
+            text="File report",
+            variable=self.report_format,
+            value="file",
+            state="disabled",
         )
 
         # Processing options
         self.processing_options_frame = ttk.Frame(self.postprocess_frame)
         self.force_process_check = ttk.Checkbutton(
-            self.processing_options_frame, text="Force process already processed files",
-            variable=self.force_process, state="disabled"
+            self.processing_options_frame,
+            text="Force process already processed files",
+            variable=self.force_process,
+            state="disabled",
         )
         self.dry_run_process_check = ttk.Checkbutton(
-            self.processing_options_frame, text="Dry run (show what would be processed)",
-            variable=self.dry_run_process, state="disabled"
+            self.processing_options_frame,
+            text="Dry run (show what would be processed)",
+            variable=self.dry_run_process,
+            state="disabled",
         )
         self.report_update_check = ttk.Checkbutton(
-            self.processing_options_frame, text="Update existing report file",
-            variable=self.report_update, state="disabled"
+            self.processing_options_frame,
+            text="Update existing report file",
+            variable=self.report_update,
+            state="disabled",
         )
 
         # Buttons
@@ -235,8 +247,6 @@ class DocxMdConverterGUI:
         self.dst_frame.pack(fill=tk.X, pady=5)
         self.dst_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
         self.dst_button.pack(side=tk.RIGHT, padx=(10, 0))
-
-
 
         # Template
         self.template_frame.pack(fill=tk.X, pady=5)
@@ -457,14 +467,25 @@ class DocxMdConverterGUI:
             )
 
             # Update UI in main thread
-            self.root.after(0, self._conversion_complete, successful, total, processing_results, None)
+            self.root.after(
+                0,
+                self._conversion_complete,
+                successful,
+                total,
+                processing_results,
+                None,
+            )
 
         except Exception as e:
             # Update UI in main thread
             self.root.after(0, self._conversion_complete, 0, 0, None, str(e))
 
     def _conversion_complete(
-        self, successful: int, total: int, processing_results: Optional[dict], error: Optional[str]
+        self,
+        successful: int,
+        total: int,
+        processing_results: Optional[dict],
+        error: Optional[str],
     ) -> None:
         """Handle conversion completion (runs in main thread)."""
         # Update UI state
@@ -483,9 +504,11 @@ class DocxMdConverterGUI:
                 # Add post-processing info if applicable
                 if processing_results and self.post_process.get():
                     if "error" not in processing_results:
-                        processed = processing_results.get('processed', 0)
-                        total_processed = processing_results.get('total', 0)
-                        status_msg += f" | Post-processed: {processed}/{total_processed}"
+                        processed = processing_results.get("processed", 0)
+                        total_processed = processing_results.get("total", 0)
+                        status_msg += (
+                            f" | Post-processed: {processed}/{total_processed}"
+                        )
                         log_msg += f" | Post-processed: {processed}/{total_processed}"
 
                 self.status_label.config(text=status_msg)
@@ -498,16 +521,17 @@ class DocxMdConverterGUI:
                 # Add post-processing info if applicable
                 if processing_results and self.post_process.get():
                     if "error" not in processing_results:
-                        processed = processing_results.get('processed', 0)
-                        total_processed = processing_results.get('total', 0)
-                        status_msg += f" | Post-processed: {processed}/{total_processed}"
+                        processed = processing_results.get("processed", 0)
+                        total_processed = processing_results.get("total", 0)
+                        status_msg += (
+                            f" | Post-processed: {processed}/{total_processed}"
+                        )
                         log_msg += f" | Post-processed: {processed}/{total_processed}"
 
                 self.status_label.config(text=status_msg)
                 self._log_message(log_msg, "WARNING")
                 messagebox.showwarning(
-                    "Partial Success",
-                    f"{status_msg}. Check log for details."
+                    "Partial Success", f"{status_msg}. Check log for details."
                 )
 
     def run(self) -> None:

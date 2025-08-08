@@ -3,8 +3,8 @@
 Test script for post-processing functionality
 """
 
-import tempfile
 import os
+import tempfile
 from pathlib import Path
 
 # Create test markdown files
@@ -44,6 +44,7 @@ test_content = """
 - за некачественное выполнение обязанностей.
 """
 
+
 def main():
     # Create temporary directory with test files
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -53,32 +54,36 @@ def main():
         test_files = [
             "Агент по розыску.md",
             "Специалист отдела.md",
-            "Менеджер проекта.md"
+            "Менеджер проекта.md",
         ]
 
         for filename in test_files:
             filepath = Path(temp_dir) / filename
-            with open(filepath, 'w', encoding='utf-8') as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write(test_content)
             print(f"✅ Created: {filename}")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🧪 TESTING CLI FUNCTIONALITY")
-        print("="*60)
+        print("=" * 60)
 
         # Test basic processing (no conversion, only post-processing)
         print("\n📋 Testing basic post-processing...")
-        os.system(f'python -m docxmd_converter.cli --src "{temp_dir}" --dst "{temp_dir}" --format docx2md --post-process --processor basic --report console')
+        os.system(
+            f'python -m docxmd_converter.cli --src "{temp_dir}" --dst "{temp_dir}" --format docx2md --post-process --processor basic --report console'
+        )
 
         print("\n📋 Testing advanced post-processing with file report...")
-        os.system(f'python -m docxmd_converter.cli --src "{temp_dir}" --dst "{temp_dir}" --format docx2md --post-process --processor advanced --report file --force-process')
+        os.system(
+            f'python -m docxmd_converter.cli --src "{temp_dir}" --dst "{temp_dir}" --format docx2md --post-process --processor advanced --report file --force-process'
+        )
 
         # Check if files were processed
         print("\n📂 Checking processed files...")
         for filename in test_files:
             filepath = Path(temp_dir) / filename
             if filepath.exists():
-                with open(filepath, 'r', encoding='utf-8') as f:
+                with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
                     if "<!-- METADATA" in content:
                         print(f"✅ {filename} was processed (contains metadata)")
@@ -93,8 +98,11 @@ def main():
             print("⚠️ No report file found")
 
         print(f"\n🔗 Test files location: {temp_dir}")
-        print("You can manually inspect the files before the temp directory is cleaned up")
+        print(
+            "You can manually inspect the files before the temp directory is cleaned up"
+        )
         input("Press Enter to continue and cleanup...")
+
 
 if __name__ == "__main__":
     main()

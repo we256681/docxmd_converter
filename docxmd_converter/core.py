@@ -191,7 +191,7 @@ class DocxMdConverter:
                     force_process,
                     dry_run_process,
                     report_format,
-                    report_update
+                    report_update,
                 )
 
             return 0, 0, processing_results
@@ -222,7 +222,7 @@ class DocxMdConverter:
                 force_process,
                 dry_run_process,
                 report_format,
-                report_update
+                report_update,
             )
 
         return successful_conversions, total_files, processing_results
@@ -241,14 +241,16 @@ class DocxMdConverter:
             from .processor import DocumentProcessor
             from .reporting import ProcessingReporter
 
-            self.logger.info(f"Starting post-processing with {processor_type} processor...")
+            self.logger.info(
+                f"Starting post-processing with {processor_type} processor..."
+            )
 
             # Initialize processor
             processor_kwargs = {}
             if processor_type == "advanced":
                 processor_kwargs = {
                     "force_reprocess": force_process,
-                    "dry_run": dry_run_process
+                    "dry_run": dry_run_process,
                 }
 
             processor = DocumentProcessor(processor_type, **processor_kwargs)
@@ -258,7 +260,7 @@ class DocxMdConverter:
                 process_dir,
                 force=force_process,
                 dry_run=dry_run_process,
-                pattern="*.md"
+                pattern="*.md",
             )
 
             # Generate report
@@ -267,7 +269,7 @@ class DocxMdConverter:
                 results,
                 format=report_format,
                 update_existing=report_update,
-                output_dir=process_dir
+                output_dir=process_dir,
             )
 
             self.logger.info(

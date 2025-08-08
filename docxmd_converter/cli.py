@@ -69,7 +69,7 @@ Examples:
     parser.add_argument(
         "--post-process",
         action="store_true",
-        help="Apply document processing after conversion"
+        help="Apply document processing after conversion",
     )
 
     parser.add_argument(
@@ -77,7 +77,7 @@ Examples:
         type=str,
         choices=["basic", "advanced"],
         default="basic",
-        help="Document processor type (default: basic)"
+        help="Document processor type (default: basic)",
     )
 
     parser.add_argument(
@@ -85,25 +85,25 @@ Examples:
         type=str,
         choices=["console", "file"],
         default="console",
-        help="Report output format (default: console)"
+        help="Report output format (default: console)",
     )
 
     parser.add_argument(
         "--report-update",
         action="store_true",
-        help="Update existing report file instead of creating dated version"
+        help="Update existing report file instead of creating dated version",
     )
 
     parser.add_argument(
         "--force-process",
         action="store_true",
-        help="Force processing of already processed files"
+        help="Force processing of already processed files",
     )
 
     parser.add_argument(
         "--dry-run-process",
         action="store_true",
-        help="Show what would be processed without actual changes"
+        help="Show what would be processed without actual changes",
     )
 
     parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
@@ -164,14 +164,18 @@ def main() -> int:
             if args.post_process and processing_results:
                 print(f"✅ Successfully converted all {total} files")
                 if args.report == "console":
-                    print(f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed")
+                    print(
+                        f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed"
+                    )
             else:
                 print(f"✅ Successfully converted all {total} files")
             return 0
         else:
             print(f"⚠️  Converted {successful}/{total} files (some errors occurred)")
             if args.post_process and processing_results:
-                print(f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed")
+                print(
+                    f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed"
+                )
             return 1
 
     except ConversionError as e:

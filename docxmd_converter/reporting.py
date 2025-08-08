@@ -22,7 +22,7 @@ class ProcessingReporter:
         results: ProcessingResults,
         format: str = "console",
         update_existing: bool = False,
-        output_dir: Union[str, Path] = None
+        output_dir: Union[str, Path] = None,
     ) -> None:
         """Generate processing report
 
@@ -41,9 +41,9 @@ class ProcessingReporter:
 
     def _print_console_report(self, results: ProcessingResults) -> None:
         """Print report to console"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("📋 ОТЧЕТ О ПОСТОБРАБОТКЕ ДОКУМЕНТОВ")
-        print("="*60)
+        print("=" * 60)
         print(f"⏰ Время обработки: {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"📂 Всего файлов: {results.total}")
         print(f"✅ Обработано: {results.processed}")
@@ -79,13 +79,13 @@ class ProcessingReporter:
         else:
             print("❌ Выполнение не удалось")
 
-        print("="*60)
+        print("=" * 60)
 
     def _save_file_report(
         self,
         results: ProcessingResults,
         update_existing: bool = False,
-        output_dir: Union[str, Path] = None
+        output_dir: Union[str, Path] = None,
     ) -> None:
         """Save report to file"""
         if output_dir is None:
@@ -108,7 +108,7 @@ class ProcessingReporter:
         # Write report
         try:
             report_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(report_path, 'w', encoding='utf-8') as f:
+            with open(report_path, "w", encoding="utf-8") as f:
                 f.write(report_content)
 
             print(f"📄 Отчет сохранен в: {report_path}")
@@ -116,7 +116,9 @@ class ProcessingReporter:
         except Exception as e:
             print(f"❌ Ошибка при сохранении отчета: {e}")
 
-    def _generate_markdown_report(self, results: ProcessingResults, is_update: bool = False) -> str:
+    def _generate_markdown_report(
+        self, results: ProcessingResults, is_update: bool = False
+    ) -> str:
         """Generate markdown report content"""
         timestamp_str = self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         date_str = self.timestamp.strftime("%Y-%m-%d")
@@ -160,9 +162,9 @@ class ProcessingReporter:
             total_processed = sum(results.quality_stats.values())
 
             if total_processed > 0:
-                high_pct = (results.quality_stats['high'] / total_processed) * 100
-                medium_pct = (results.quality_stats['medium'] / total_processed) * 100
-                low_pct = (results.quality_stats['low'] / total_processed) * 100
+                high_pct = (results.quality_stats["high"] / total_processed) * 100
+                medium_pct = (results.quality_stats["medium"] / total_processed) * 100
+                low_pct = (results.quality_stats["low"] / total_processed) * 100
 
                 content += "| Качество | Количество файлов | Процент | Описание |\n"
                 content += "|----------|-------------------|---------|----------|\n"
@@ -183,8 +185,12 @@ class ProcessingReporter:
                 # Show first 10 and last 10
                 for i, file_path in enumerate(results.files_processed[:10], 1):
                     content += f"{i}. `{Path(file_path).name}`\n"
-                content += f"... (пропущено {len(results.files_processed) - 20} файлов) ...\n"
-                for i, file_path in enumerate(results.files_processed[-10:], len(results.files_processed) - 9):
+                content += (
+                    f"... (пропущено {len(results.files_processed) - 20} файлов) ...\n"
+                )
+                for i, file_path in enumerate(
+                    results.files_processed[-10:], len(results.files_processed) - 9
+                ):
                     content += f"{i}. `{Path(file_path).name}`\n"
 
             content += "\n"
@@ -219,24 +225,32 @@ class ProcessingReporter:
         content += "---\n\n"
         content += "## Рекомендации\n\n"
 
-        if results.quality_stats['low'] > 0:
+        if results.quality_stats["low"] > 0:
             content += f"### 📝 Документы с низким качеством ({results.quality_stats['low']} шт.)\n\n"
             content += "Рекомендуется ручная доработка документов с низким качеством обработки:\n\n"
-            content += "1. Найдите документы с `\"processing_quality\": \"low\"` в метаданных\n"
+            content += (
+                '1. Найдите документы с `"processing_quality": "low"` в метаданных\n'
+            )
             content += "2. Дополните содержимое разделов вручную\n"
             content += "3. Обновите метаданные после доработки\n\n"
 
         if results.files_errored:
-            content += f"### 🔧 Устранение ошибок ({len(results.files_errored)} шт.)\n\n"
+            content += (
+                f"### 🔧 Устранение ошибок ({len(results.files_errored)} шт.)\n\n"
+            )
             content += "Для исправления ошибок:\n\n"
             content += "1. Проверьте права доступа к файлам\n"
             content += "2. Убедитесь в корректности кодировки файлов (UTF-8)\n"
             content += "3. Проверьте структуру исходных документов\n"
-            content += "4. Попробуйте повторную обработку с флагом `--force-process`\n\n"
+            content += (
+                "4. Попробуйте повторную обработку с флагом `--force-process`\n\n"
+            )
 
         # Next steps
         content += "### 🚀 Дальнейшие действия\n\n"
-        content += "1. **Проверка качества:** Просмотрите документы с низким качеством\n"
+        content += (
+            "1. **Проверка качества:** Просмотрите документы с низким качеством\n"
+        )
         content += "2. **Ручная доработка:** Дополните содержимое при необходимости\n"
         content += "3. **Повторная обработка:** Используйте улучшенный алгоритм для существующих файлов\n"
         content += "4. **Интеграция:** Внедрите обработку в процесс CI/CD\n\n"
@@ -254,7 +268,7 @@ class ProcessingReporter:
             "generated_at": timestamp_str,
             "generator": "docxmd_converter",
             "version": "0.1.0",
-            "statistics": results.to_dict()
+            "statistics": results.to_dict(),
         }
 
         content += "<!-- REPORT METADATA\n"
@@ -268,7 +282,9 @@ class ProcessingReporter:
         if results.total == 0:
             return "📋 Нет файлов для обработки"
 
-        status_emoji = "✅" if results.errors == 0 else ("⚠️" if results.processed > 0 else "❌")
+        status_emoji = (
+            "✅" if results.errors == 0 else ("⚠️" if results.processed > 0 else "❌")
+        )
 
         summary = (
             f"{status_emoji} Обработка завершена: "
@@ -294,8 +310,10 @@ def print_processing_summary(results: ProcessingResults) -> None:
 def save_processing_report(
     results: ProcessingResults,
     output_dir: Union[str, Path] = None,
-    update_existing: bool = False
+    update_existing: bool = False,
 ) -> None:
     """Save processing report to file"""
     reporter = ProcessingReporter()
-    reporter.generate_report(results, format="file", update_existing=update_existing, output_dir=output_dir)
+    reporter.generate_report(
+        results, format="file", update_existing=update_existing, output_dir=output_dir
+    )

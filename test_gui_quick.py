@@ -5,6 +5,7 @@ Quick GUI test to verify it loads without errors
 
 try:
     from docxmd_converter.gui import DocxMdConverterGUI
+
     print("✅ GUI module imported successfully")
 
     # Try to create GUI instance (but don't run mainloop)
@@ -15,9 +16,15 @@ try:
 
         # Check if all new variables exist
         required_attrs = [
-            'post_process', 'processor_type', 'report_format',
-            'report_update', 'force_process', 'dry_run_process',
-            'postprocess_frame', 'processor_basic', 'processor_advanced'
+            "post_process",
+            "processor_type",
+            "report_format",
+            "report_update",
+            "force_process",
+            "dry_run_process",
+            "postprocess_frame",
+            "processor_basic",
+            "processor_advanced",
         ]
 
         for attr in required_attrs:

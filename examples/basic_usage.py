@@ -121,11 +121,13 @@ def example_post_processing():
             direction="docx2md",
             post_process=True,
             processor_type="basic",
-            report_format="console"
+            report_format="console",
         )
 
         print(f"✅ Converted {successful}/{total} files")
-        print(f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files")
+        print(
+            f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files"
+        )
         print(f"📊 High quality: {processing_results['high_quality']} files")
         print(f"📊 Medium quality: {processing_results['medium_quality']} files")
         print(f"📊 Low quality: {processing_results['low_quality']} files")
@@ -155,13 +157,15 @@ def example_advanced_post_processing():
             processor_type="advanced",
             report_format="file",
             force_process=False,  # Don't reprocess already processed files
-            dry_run_process=False  # Actually process files
+            dry_run_process=False,  # Actually process files
         )
 
         print(f"✅ Converted {successful}/{total} files")
-        print(f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files")
+        print(
+            f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files"
+        )
 
-        if processing_results.get('report_file'):
+        if processing_results.get("report_file"):
             print(f"📝 Detailed report saved to: {processing_results['report_file']}")
 
     except Exception as e:

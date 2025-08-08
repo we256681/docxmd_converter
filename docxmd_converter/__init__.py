@@ -9,7 +9,7 @@ templates and recursive directory processing.
 __version__ = "2.0.0"
 __author__ = "we256681"
 __email__ = "we256681@gmail.com"
-__description__ = "Convert between .docx and .md files with template support"
+__description__ = "Convert between .docx and .md files with template support and advanced document post-processing"
 
 from .cli import main as cli_main
 from .core import DocxMdConverter
