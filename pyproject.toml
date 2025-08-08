@@ -8,7 +8,7 @@ version = "0.1.0"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
-description = "Convert between .docx and .md files with template support"
+description = "Convert between .docx and .md files with template support and advanced document post-processing"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Text Processing :: Markup",
     "Topic :: Utilities",
 ]
-keywords = ["docx", "markdown", "converter", "pandoc", "office", "documentation"]
+keywords = ["docx", "markdown", "converter", "pandoc", "office", "documentation", "post-processing", "document-cleaning", "text-processing"]
 dependencies = [
     "pypandoc>=1.11",
     "python-docx>=0.8.11",

@@ -58,7 +58,7 @@ class DocxMdConverter:
         self,
         input_file: Union[str, Path],
         output_file: Union[str, Path],
-        direction: str,
+        format: str,
         template_path: Optional[Union[str, Path]] = None,
     ) -> bool:
         """Convert a single file.
@@ -66,7 +66,7 @@ class DocxMdConverter:
         Args:
             input_file: Path to input file
             output_file: Path to output file
-            direction: Conversion direction ('docx2md' or 'md2docx')
+            format: Conversion format ('docx2md' or 'md2docx')
             template_path: Path to .docx template (for md2docx only)
 
         Returns:
@@ -83,16 +83,16 @@ class DocxMdConverter:
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            if direction == "docx2md":
+            if format == "docx2md":
                 self._convert_docx_to_md(input_file, output_file)
-            elif direction == "md2docx":
+            elif format == "md2docx":
                 self._convert_md_to_docx(
                     input_file,
                     output_file,
                     Path(template_path) if template_path else None,
                 )
             else:
-                raise ConversionError(f"Invalid direction: {direction}")
+                raise ConversionError(f"Invalid format: {format}")
 
             self.logger.info(f"Successfully converted: {input_file} -> {output_file}")
             return True
@@ -134,19 +134,31 @@ class DocxMdConverter:
         self,
         src_dir: Union[str, Path],
         dst_dir: Union[str, Path],
-        direction: str,
+        format: str,
         template_path: Optional[Union[str, Path]] = None,
-    ) -> Tuple[int, int]:
-        """Convert all files in directory recursively.
+        post_process: bool = False,
+        processor_type: str = "basic",
+        force_process: bool = False,
+        dry_run_process: bool = False,
+        report_format: str = "console",
+        report_update: bool = False,
+    ) -> Tuple[int, int, Optional[dict]]:
+        """Convert all files in directory recursively with optional post-processing.
 
         Args:
             src_dir: Source directory path
             dst_dir: Destination directory path
-            direction: Conversion direction ('docx2md' or 'md2docx')
+            format: Conversion format ('docx2md' or 'md2docx')
             template_path: Path to .docx template (for md2docx only)
+            post_process: Apply document processing after conversion
+            processor_type: Type of processor to use ('basic' or 'advanced')
+            force_process: Force processing of already processed files
+            dry_run_process: Show what would be processed without making changes
+            report_format: Report output format ('console' or 'file')
+            report_update: Update existing report file instead of creating new one
 
         Returns:
-            Tuple of (successful_conversions, total_files)
+            Tuple of (successful_conversions, total_files, processing_results)
         """
         src_dir = Path(src_dir)
         dst_dir = Path(dst_dir)
@@ -155,21 +167,34 @@ class DocxMdConverter:
             raise ConversionError(f"Source directory does not exist: {src_dir}")
 
         # Determine file extension to search for
-        if direction == "docx2md":
+        if format == "docx2md":
             file_pattern = "*.docx"
             output_ext = ".md"
-        elif direction == "md2docx":
+        elif format == "md2docx":
             file_pattern = "*.md"
             output_ext = ".docx"
         else:
-            raise ConversionError(f"Invalid direction: {direction}")
+            raise ConversionError(f"Invalid format: {format}")
 
         # Find all files to convert
         files_to_convert = list(src_dir.rglob(file_pattern))
 
         if not files_to_convert:
             self.logger.warning(f"No {file_pattern} files found in {src_dir}")
-            return 0, 0
+
+            # Still apply post-processing if requested, even without conversion
+            processing_results = None
+            if post_process:
+                processing_results = self._apply_post_processing(
+                    dst_dir if format == "docx2md" else src_dir,
+                    processor_type,
+                    force_process,
+                    dry_run_process,
+                    report_format,
+                    report_update
+                )
+
+            return 0, 0, processing_results
 
         successful_conversions = 0
         total_files = len(files_to_convert)
@@ -181,17 +206,82 @@ class DocxMdConverter:
             relative_path = input_file.relative_to(src_dir)
             output_file = dst_dir / relative_path.with_suffix(output_ext)
 
-            if self.convert_file(input_file, output_file, direction, template_path):
+            if self.convert_file(input_file, output_file, format, template_path):
                 successful_conversions += 1
 
         self.logger.info(
             f"Conversion completed: {successful_conversions}/{total_files} files"
         )
 
-        return successful_conversions, total_files
+        # Apply post-processing if requested
+        processing_results = None
+        if post_process:
+            processing_results = self._apply_post_processing(
+                dst_dir if format == "docx2md" else src_dir,
+                processor_type,
+                force_process,
+                dry_run_process,
+                report_format,
+                report_update
+            )
 
-    def get_supported_directions(self) -> List[str]:
-        """Get list of supported conversion directions."""
+        return successful_conversions, total_files, processing_results
+
+    def _apply_post_processing(
+        self,
+        process_dir: Union[str, Path],
+        processor_type: str,
+        force_process: bool,
+        dry_run_process: bool,
+        report_format: str,
+        report_update: bool,
+    ) -> dict:
+        """Apply post-processing to converted files"""
+        try:
+            from .processor import DocumentProcessor
+            from .reporting import ProcessingReporter
+
+            self.logger.info(f"Starting post-processing with {processor_type} processor...")
+
+            # Initialize processor
+            processor_kwargs = {}
+            if processor_type == "advanced":
+                processor_kwargs = {
+                    "force_reprocess": force_process,
+                    "dry_run": dry_run_process
+                }
+
+            processor = DocumentProcessor(processor_type, **processor_kwargs)
+
+            # Process files
+            results = processor.process_directory(
+                process_dir,
+                force=force_process,
+                dry_run=dry_run_process,
+                pattern="*.md"
+            )
+
+            # Generate report
+            reporter = ProcessingReporter()
+            reporter.generate_report(
+                results,
+                format=report_format,
+                update_existing=report_update,
+                output_dir=process_dir
+            )
+
+            self.logger.info(
+                f"Post-processing completed: {results.processed}/{results.total} files processed"
+            )
+
+            return results.to_dict()
+
+        except Exception as e:
+            self.logger.error(f"Post-processing failed: {str(e)}")
+            return {"error": str(e), "processed": 0, "total": 0}
+
+    def get_supported_formats(self) -> List[str]:
+        """Get list of supported conversion formats."""
         return ["docx2md", "md2docx"]
 
     def validate_template(self, template_path: Union[str, Path]) -> bool:

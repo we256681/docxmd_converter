@@ -18,14 +18,18 @@ def create_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   # Convert all .docx files to .md
-  docxmd --src ./documents --dst ./markdown --direction docx2md
+  docxmd --src ./documents --dst ./markdown --format docx2md
 
   # Convert all .md files to .docx with template
-  docxmd --src ./markdown --dst ./documents --direction md2docx \\
+  docxmd --src ./markdown --dst ./documents --format md2docx \\
          --template ./template.docx
 
+  # Convert and apply post-processing
+  docxmd --src ./documents --dst ./markdown --format docx2md \\
+         --post-process --processor advanced --report file
+
   # Enable debug logging
-  docxmd --src ./input --dst ./output --direction docx2md --verbose
+  docxmd --src ./input --dst ./output --format docx2md --verbose
         """,
     )
 
@@ -44,11 +48,11 @@ Examples:
     )
 
     parser.add_argument(
-        "--direction",
+        "--format",
         type=str,
         required=True,
         choices=["docx2md", "md2docx"],
-        help="Conversion direction: docx2md or md2docx",
+        help="Conversion format: docx2md or md2docx",
     )
 
     parser.add_argument(
@@ -59,6 +63,47 @@ Examples:
 
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+
+    # Post-processing options
+    parser.add_argument(
+        "--post-process",
+        action="store_true",
+        help="Apply document processing after conversion"
+    )
+
+    parser.add_argument(
+        "--processor",
+        type=str,
+        choices=["basic", "advanced"],
+        default="basic",
+        help="Document processor type (default: basic)"
+    )
+
+    parser.add_argument(
+        "--report",
+        type=str,
+        choices=["console", "file"],
+        default="console",
+        help="Report output format (default: console)"
+    )
+
+    parser.add_argument(
+        "--report-update",
+        action="store_true",
+        help="Update existing report file instead of creating dated version"
+    )
+
+    parser.add_argument(
+        "--force-process",
+        action="store_true",
+        help="Force processing of already processed files"
+    )
+
+    parser.add_argument(
+        "--dry-run-process",
+        action="store_true",
+        help="Show what would be processed without actual changes"
     )
 
     parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
@@ -77,8 +122,8 @@ def validate_args(args: argparse.Namespace) -> None:
 
     # Validate template if provided
     if args.template:
-        if args.direction != "md2docx":
-            raise ConversionError("Template can only be used with md2docx direction")
+        if args.format != "md2docx":
+            raise ConversionError("Template can only be used with md2docx format")
 
         template_path = Path(args.template)
         if not template_path.exists():
@@ -102,18 +147,31 @@ def main() -> int:
         converter = DocxMdConverter(log_level=log_level)
 
         # Convert files
-        successful, total = converter.convert_directory(
+        successful, total, processing_results = converter.convert_directory(
             src_dir=args.src,
             dst_dir=args.dst,
-            direction=args.direction,
+            format=args.format,
             template_path=args.template,
+            post_process=args.post_process,
+            processor_type=args.processor,
+            force_process=args.force_process,
+            dry_run_process=args.dry_run_process,
+            report_format=args.report,
+            report_update=args.report_update,
         )
 
         if successful == total:
-            print(f"✅ Successfully converted all {total} files")
+            if args.post_process and processing_results:
+                print(f"✅ Successfully converted all {total} files")
+                if args.report == "console":
+                    print(f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed")
+            else:
+                print(f"✅ Successfully converted all {total} files")
             return 0
         else:
             print(f"⚠️  Converted {successful}/{total} files (some errors occurred)")
+            if args.post_process and processing_results:
+                print(f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed")
             return 1
 
     except ConversionError as e:

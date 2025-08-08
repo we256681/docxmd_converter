@@ -102,6 +102,72 @@ def example_template_conversion():
         print(f"❌ Template file not found: {template_file}")
 
 
+def example_post_processing():
+    """Example: Convert with post-processing."""
+    print("\n=== Post-Processing Example ===")
+
+    # Initialize converter
+    converter = DocxMdConverter(log_level="INFO")
+
+    # Example directory paths
+    src_directory = "./documents"  # Directory with .docx files
+    dst_directory = "./markdown"  # Output directory for .md files
+
+    # Convert with basic post-processing
+    try:
+        successful, total, processing_results = converter.convert_directory(
+            src_dir=src_directory,
+            dst_dir=dst_directory,
+            direction="docx2md",
+            post_process=True,
+            processor_type="basic",
+            report_format="console"
+        )
+
+        print(f"✅ Converted {successful}/{total} files")
+        print(f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files")
+        print(f"📊 High quality: {processing_results['high_quality']} files")
+        print(f"📊 Medium quality: {processing_results['medium_quality']} files")
+        print(f"📊 Low quality: {processing_results['low_quality']} files")
+
+    except Exception as e:
+        print(f"❌ Post-processing conversion failed: {e}")
+
+
+def example_advanced_post_processing():
+    """Example: Advanced post-processing with file report."""
+    print("\n=== Advanced Post-Processing Example ===")
+
+    # Initialize converter
+    converter = DocxMdConverter(log_level="INFO")
+
+    # Example directory paths
+    src_directory = "./documents"  # Directory with .docx files
+    dst_directory = "./markdown"  # Output directory for .md files
+
+    # Convert with advanced post-processing
+    try:
+        successful, total, processing_results = converter.convert_directory(
+            src_dir=src_directory,
+            dst_dir=dst_directory,
+            direction="docx2md",
+            post_process=True,
+            processor_type="advanced",
+            report_format="file",
+            force_process=False,  # Don't reprocess already processed files
+            dry_run_process=False  # Actually process files
+        )
+
+        print(f"✅ Converted {successful}/{total} files")
+        print(f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files")
+
+        if processing_results.get('report_file'):
+            print(f"📝 Detailed report saved to: {processing_results['report_file']}")
+
+    except Exception as e:
+        print(f"❌ Advanced post-processing failed: {e}")
+
+
 def example_create_sample_files():
     """Create sample files for testing."""
     print("\n=== Creating Sample Files ===")
@@ -124,6 +190,8 @@ This is a **sample** document for testing the DocxMD Converter.
 - Support for templates
 - Recursive directory processing
 - Both CLI and GUI interfaces
+- Advanced document post-processing
+- Automated report generation
 
 ### Code Example
 
@@ -131,25 +199,45 @@ This is a **sample** document for testing the DocxMD Converter.
 from docxmd_converter import DocxMdConverter
 
 converter = DocxMdConverter()
+
+# Basic conversion
 converter.convert_file("input.docx", "output.md", "docx2md")
+
+# Conversion with post-processing
+converter.convert_directory(
+    src_dir="./documents",
+    dst_dir="./markdown",
+    direction="docx2md",
+    post_process=True,
+    processor_type="advanced",
+    report_format="file"
+)
 ```
 
-### Table Example
+### Feature Comparison
 
-| Feature | Supported |
-|---------|-----------|
-| .docx → .md | ✅ |
-| .md → .docx | ✅ |
-| Templates | ✅ |
-| Recursive | ✅ |
+| Feature | Supported | Post-Processing |
+|---------|-----------|-----------------|
+| .docx → .md | ✅ | ✅ |
+| .md → .docx | ✅ | ❌ |
+| Templates | ✅ | N/A |
+| Recursive | ✅ | ✅ |
+| Artifact Cleaning | ✅ | ✅ |
+| Quality Assessment | ✅ | ✅ |
+| Report Generation | ✅ | ✅ |
 
-> This is a blockquote example.
+### Post-Processing Benefits
+
+> Post-processing automatically cleans converted documents by:
 >
-> It can span multiple lines.
+> - Removing formatting artifacts
+> - Structuring content into logical sections
+> - Adding metadata for tracking
+> - Assessing processing quality
 
 ---
 
-That's all for this sample document!
+That's all for this enhanced sample document!
 """
     )
 
@@ -204,6 +292,8 @@ def main():
         # example_single_file_conversion()
         # example_directory_conversion()
         # example_template_conversion()
+        # example_post_processing()
+        # example_advanced_post_processing()
 
     except Exception as e:
         print(f"❌ Error initializing converter: {e}")
