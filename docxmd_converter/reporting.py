@@ -6,7 +6,7 @@ Handles console and file report generation.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Union
+from typing import Union
 
 from .processor import ProcessingResults
 
@@ -71,7 +71,7 @@ class ProcessingReporter:
                 print(f"  ... и еще {len(results.files_errored) - 10} ошибок")
 
         # Status summary
-        print(f"\n🎯 ОБЩИЙ СТАТУС: ", end="")
+        print("\n🎯 ОБЩИЙ СТАТУС: ", end="")
         if results.errors == 0:
             print("✅ Задача выполнена успешно")
         elif results.processed > 0:
@@ -121,16 +121,15 @@ class ProcessingReporter:
     ) -> str:
         """Generate markdown report content"""
         timestamp_str = self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        date_str = self.timestamp.strftime("%Y-%m-%d")
 
         # Header
         if is_update:
-            content = f"# Отчет о постобработке документов (обновлен)\n\n"
+            content = "# Отчет о постобработке документов (обновлен)\n\n"
         else:
-            content = f"# Отчет о постобработке документов\n\n"
+            content = "# Отчет о постобработке документов\n\n"
 
         content += f"**Дата создания:** {timestamp_str}\n"
-        content += f"**Генератор:** DocxMD Converter v0.1.0\n\n"
+        content += "**Генератор:** DocxMD Converter v0.1.0\n\n"
 
         # Executive Summary
         content += "## Краткое резюме\n\n"
@@ -168,9 +167,13 @@ class ProcessingReporter:
 
                 content += "| Качество | Количество файлов | Процент | Описание |\n"
                 content += "|----------|-------------------|---------|----------|\n"
-                content += f"| **🟢 Высокое** | {results.quality_stats['high']} | {high_pct:.1f}% | Все разделы заполнены структурированным содержимым |\n"
-                content += f"| **🟡 Среднее** | {results.quality_stats['medium']} | {medium_pct:.1f}% | Большинство разделов заполнено |\n"
-                content += f"| **🔴 Низкое** | {results.quality_stats['low']} | {low_pct:.1f}% | Только структура, минимум содержимого |\n\n"
+                high_desc = "Все разделы заполнены структурированным содержимым"
+                medium_desc = "Большинство разделов заполнено"
+                low_desc = "Только структура, минимум содержимого"
+
+                content += f"| **🟢 Высокое** | {results.quality_stats['high']} | {high_pct:.1f}% | {high_desc} |\n"
+                content += f"| **🟡 Среднее** | {results.quality_stats['medium']} | {medium_pct:.1f}% | {medium_desc} |\n"
+                content += f"| **🔴 Низкое** | {results.quality_stats['low']} | {low_pct:.1f}% | {low_desc} |\n\n"
 
         # Processing Details
         if results.processed > 0:
@@ -226,8 +229,10 @@ class ProcessingReporter:
         content += "## Рекомендации\n\n"
 
         if results.quality_stats["low"] > 0:
-            content += f"### 📝 Документы с низким качеством ({results.quality_stats['low']} шт.)\n\n"
-            content += "Рекомендуется ручная доработка документов с низким качеством обработки:\n\n"
+            low_count = results.quality_stats['low']
+            content += f"### 📝 Документы с низким качеством ({low_count} шт.)\n\n"
+            recommendation = "Рекомендуется ручная доработка документов с низким качеством обработки:"
+            content += f"{recommendation}\n\n"
             content += (
                 '1. Найдите документы с `"processing_quality": "low"` в метаданных\n'
             )
@@ -252,15 +257,15 @@ class ProcessingReporter:
             "1. **Проверка качества:** Просмотрите документы с низким качеством\n"
         )
         content += "2. **Ручная доработка:** Дополните содержимое при необходимости\n"
-        content += "3. **Повторная обработка:** Используйте улучшенный алгоритм для существующих файлов\n"
+        content += "3. **Повторная обработка:** Используйте улучшенный алгоритм\n"
         content += "4. **Интеграция:** Внедрите обработку в процесс CI/CD\n\n"
 
         # Technical Information
         content += "---\n\n"
         content += "## Техническая информация\n\n"
         content += f"**Время выполнения:** {timestamp_str}\n"
-        content += f"**Версия обработчика:** DocxMD Converter v0.1.0\n"
-        content += f"**Формат данных:** Markdown с JSON метаданными\n\n"
+        content += "**Версия обработчика:** DocxMD Converter v0.1.0\n"
+        content += "**Формат данных:** Markdown с JSON метаданными\n\n"
 
         # Metadata
         metadata = {

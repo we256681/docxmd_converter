@@ -164,18 +164,18 @@ def main() -> int:
             if args.post_process and processing_results:
                 print(f"✅ Successfully converted all {total} files")
                 if args.report == "console":
-                    print(
-                        f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed"
-                    )
+                    proc = processing_results['processed']
+                    total = processing_results['total']
+                    print(f"📋 Post-processing: {proc}/{total} files processed")
             else:
                 print(f"✅ Successfully converted all {total} files")
             return 0
         else:
             print(f"⚠️  Converted {successful}/{total} files (some errors occurred)")
             if args.post_process and processing_results:
-                print(
-                    f"📋 Post-processing: {processing_results['processed']}/{processing_results['total']} files processed"
-                )
+                processed = processing_results["processed"]
+                total_proc = processing_results["total"]
+                print(f"📋 Post-processing: {processed}/{total_proc} files processed")
             return 1
 
     except ConversionError as e:

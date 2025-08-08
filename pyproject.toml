@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "docxmd-converter"
 version = "2.0.1"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "we256681", email = "we256681@gmail.com"},
 ]
 description = "Convert between .docx and .md files with template support and advanced document post-processing"
 readme = "README.md"
@@ -48,10 +48,10 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/docxmd-converter"
-"Bug Reports" = "https://github.com/yourusername/docxmd-converter/issues"
-"Source" = "https://github.com/yourusername/docxmd-converter"
-"Documentation" = "https://github.com/yourusername/docxmd-converter#readme"
+"Homepage" = "https://github.com/we256681/docxmd_converter"
+"Bug Reports" = "https://github.com/we256681/docxmd_converter/issues"
+"Source" = "https://github.com/we256681/docxmd_converter"
+"Documentation" = "https://github.com/we256681/docxmd_converter#readme"
 
 [project.scripts]
 docxmd = "docxmd_converter.cli:main"

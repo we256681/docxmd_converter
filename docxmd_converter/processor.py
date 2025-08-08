@@ -1,6 +1,7 @@
 """
 Document processor module for post-processing converted markdown files.
-Integrates functionality from scripts/document_processor.py and advanced_document_processor.py
+Integrates functionality from scripts/document_processor.py and
+advanced_document_processor.py
 """
 
 import json
@@ -8,7 +9,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, Union
 
 
 class ProcessingResults:
@@ -297,10 +298,10 @@ class BasicDocumentProcessor(BaseDocumentProcessor):
         structured_content += "**Руководитель структурного подразделения:** _________________ _(инициалы, фамилия)_\n\n"
         structured_content += "**Дата:** _(дата)_\n\n"
         structured_content += "### Ознакомление сотрудника\n\n"
-        structured_content += "С документом ознакомлен(а), один экземпляр получил(а) на руки и обязуюсь хранить его на рабочем месте.\n\n"
-        structured_content += (
-            "**Подпись сотрудника:** _________________ _(инициалы, фамилия)_\n\n"
-        )
+        employee_text = "С документом ознакомлен(а), один экземпляр получил(а) на руки и обязуюсь хранить его на рабочем месте.\n\n"
+        structured_content += employee_text
+        employee_sig = "**Подпись сотрудника:** _________________ _(инициалы, фамилия)_\n\n"
+        structured_content += employee_sig
         structured_content += "**Дата:** _(дата)_\n\n"
 
         return structured_content
@@ -527,7 +528,8 @@ class AdvancedDocumentProcessor(BaseDocumentProcessor):
                 sections["duties"]
             )
         else:
-            result += "## 3. Должностные обязанности\n\n_(Обязанности указываются отдельно)_\n\n"
+            duties_placeholder = "_(Обязанности указываются отдельно)_"
+            result += f"## 3. Должностные обязанности\n\n{duties_placeholder}\n\n"
 
         if sections["rights"]:
             result += "## 4. Права\n\n" + self.format_rights_advanced(
@@ -541,7 +543,8 @@ class AdvancedDocumentProcessor(BaseDocumentProcessor):
                 sections["responsibility"]
             )
         else:
-            result += "## 5. Ответственность\n\n_(Виды ответственности указываются отдельно)_\n\n"
+            resp_placeholder = "_(Виды ответственности указываются отдельно)_"
+            result += f"## 5. Ответственность\n\n{resp_placeholder}\n\n"
 
         # Signatures
         result += self.get_signatures_section()
@@ -663,7 +666,7 @@ class AdvancedDocumentProcessor(BaseDocumentProcessor):
         if "относится к категории" in text.lower():
             return text
         else:
-            return f"_(Информация о категории должности)_"
+            return "_(Информация о категории должности)_"
 
     def format_requirements(self, text: str) -> str:
         """Format requirements"""
@@ -674,7 +677,7 @@ class AdvancedDocumentProcessor(BaseDocumentProcessor):
         ):
             return text
         else:
-            return f"_(Требования к образованию и опыту работы)_"
+            return "_(Требования к образованию и опыту работы)_"
 
     def format_knowledge(self, text: str) -> str:
         """Format knowledge and skills"""
@@ -847,7 +850,8 @@ _(Порядок замещения при отсутствии сотрудни
 
     def get_signatures_section(self) -> str:
         """Get signatures section"""
-        return """## 6. Согласование и утверждение
+        employee_ack = "С документом ознакомлен(а), один экземпляр получил(а) на руки и обязуюсь хранить его на рабочем месте."
+        return f"""## 6. Согласование и утверждение
 
 ### Подписи
 
@@ -857,7 +861,7 @@ _(Порядок замещения при отсутствии сотрудни
 
 ### Ознакомление сотрудника
 
-С документом ознакомлен(а), один экземпляр получил(а) на руки и обязуюсь хранить его на рабочем месте.
+{employee_ack}
 
 **Подпись сотрудника:** _________________ _(инициалы, фамилия)_
 

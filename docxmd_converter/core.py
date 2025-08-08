@@ -272,9 +272,10 @@ class DocxMdConverter:
                 output_dir=process_dir,
             )
 
-            self.logger.info(
-                f"Post-processing completed: {results.processed}/{results.total} files processed"
-            )
+            processed_count = results.processed
+            total_count = results.total
+            msg = f"Post-processing completed: {processed_count}/{total_count} files processed"
+            self.logger.info(msg)
 
             return results.to_dict()
 

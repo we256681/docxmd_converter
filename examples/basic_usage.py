@@ -125,9 +125,9 @@ def example_post_processing():
         )
 
         print(f"✅ Converted {successful}/{total} files")
-        print(
-            f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files"
-        )
+        processed = processing_results["processed"]
+        total_proc = processing_results["total"]
+        print(f"✅ Post-processed {processed}/{total_proc} files")
         print(f"📊 High quality: {processing_results['high_quality']} files")
         print(f"📊 Medium quality: {processing_results['medium_quality']} files")
         print(f"📊 Low quality: {processing_results['low_quality']} files")
@@ -161,9 +161,9 @@ def example_advanced_post_processing():
         )
 
         print(f"✅ Converted {successful}/{total} files")
-        print(
-            f"✅ Post-processed {processing_results['processed']}/{processing_results['total']} files"
-        )
+        processed = processing_results["processed"]
+        total_proc = processing_results["total"]
+        print(f"✅ Post-processed {processed}/{total_proc} files")
 
         if processing_results.get("report_file"):
             print(f"📝 Detailed report saved to: {processing_results['report_file']}")

@@ -6,10 +6,13 @@ between Microsoft Word (.docx) and Markdown (.md) formats with support for
 templates and recursive directory processing.
 """
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __author__ = "we256681"
 __email__ = "we256681@gmail.com"
-__description__ = "Convert between .docx and .md files with template support and advanced document post-processing"
+__description__ = (
+    "Convert between .docx and .md files with template support "
+    "and advanced document post-processing"
+)
 
 from .cli import main as cli_main
 from .core import DocxMdConverter
