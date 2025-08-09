@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run pre-commit",
+      "type": "shell",
+      "command": "./venv/bin/pre-commit",
+      "args": ["run", "--all-files"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install pre-commit hooks",
+      "type": "shell",
+      "command": "./venv/bin/pre-commit",
+      "args": ["install"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Format Python with black",
+      "type": "shell",
+      "command": "./venv/bin/black",
+      "args": ["${file}"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Sort imports with isort",
+      "type": "shell",
+      "command": "./venv/bin/isort",
+      "args": ["${file}"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run flake8 linter",
+      "type": "shell",
+      "command": "./venv/bin/flake8",
+      "args": ["${file}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

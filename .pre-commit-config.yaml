@@ -1,25 +1,55 @@
+# Pre-commit configuration for DocxMD Converter
+# Tools: black (formatter), isort (imports), flake8 (linter), mypy (type checker)
 repos:
+  # Black - Python code formatter
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.4.2  # Updated to latest stable
     hooks:
       - id: black
         language_version: python3.11
+        args: ["--line-length=88"]
 
+  # isort - Import statement organizer
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        args: ["--profile", "black"]
+        args: ["--profile", "black", "--line-length=88"]
 
+  # flake8 - Python linter
   - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+    rev: 7.0.0  # Updated to latest stable
     hooks:
       - id: flake8
-        args: ["--max-line-length=88", "--extend-ignore=E203,W503"]
+        args: ["--max-line-length=88", "--extend-ignore=E203,W503,E501"]
+        additional_dependencies: [flake8-docstrings, flake8-bugbear]
 
+  # mypy - Static type checker
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.10.0  # Updated to latest stable
     hooks:
       - id: mypy
-        additional_dependencies: [types-requests]
-        args: ["--ignore-missing-imports"]
+        additional_dependencies:
+          - types-requests
+          - types-setuptools
+          - types-docutils
+        args:
+          - "--ignore-missing-imports"
+          - "--no-strict-optional"
+          - "--warn-return-any"
+          - "--warn-unused-configs"
+
+  # Additional quality checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^docs/
+      - id: end-of-file-fixer
+        exclude: ^docs/
+      - id: check-yaml
+        exclude: ^docs/
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']

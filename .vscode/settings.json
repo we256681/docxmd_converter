@@ -1,0 +1,49 @@
+{
+  "cSpell.words": [
+    "isort",
+    "mypy",
+    "flake8",
+    "docstrings",
+    "bugbear",
+    "setuptools",
+    "docutils",
+    "pandoc",
+    "docx",
+    "docxmd",
+    "pytest",
+    "venv",
+    "pyproject",
+    "toml",
+    "yaml",
+    "markdownlint",
+    "pylint",
+    "autopep8",
+    "formatter",
+    "linter",
+    "typecheck",
+    "typehints"
+  ],
+  "cSpell.ignorePaths": [
+    "node_modules/**",
+    "venv/**",
+    ".venv/**",
+    "dist/**",
+    "build/**",
+    "*.egg-info/**",
+    ".git/**",
+    "__pycache__/**",
+    "*.pyc"
+  ],
+  "python.defaultInterpreterPath": "./venv/bin/python",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.formatting.provider": "black",
+  "python.sortImports.path": "isort",
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "yaml.schemas": {
+    "https://json.schemastore.org/pre-commit-config.json": ".pre-commit-config.yaml"
+  }
+}

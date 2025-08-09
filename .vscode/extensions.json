@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.flake8",
+    "ms-python.mypy-type-checker",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "streetsidesoftware.code-spell-checker",
+    "redhat.vscode-yaml",
+    "davidanson.vscode-markdownlint",
+    "ms-vscode.vscode-json",
+    "yzhang.markdown-all-in-one"
+  ]
+}

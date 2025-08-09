@@ -6,6 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from . import __version__
 from .core import ConversionError, DocxMdConverter
 
 
@@ -13,7 +14,7 @@ def create_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
         prog="docxmd",
-        description="Convert between .docx and .md files with template support",
+        description="Convert between .docx and .md files with template support and advanced document post-processing",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -75,9 +76,9 @@ Examples:
     parser.add_argument(
         "--processor",
         type=str,
-        choices=["basic", "advanced"],
-        default="basic",
-        help="Document processor type (default: basic)",
+        choices=["basic", "advanced", "enhanced"],
+        default="enhanced",
+        help="Document processor type (enhanced is recommended, includes advanced formatting)",
     )
 
     parser.add_argument(
@@ -106,7 +107,9 @@ Examples:
         help="Show what would be processed without actual changes",
     )
 
-    parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
 
     return parser
 
@@ -164,8 +167,8 @@ def main() -> int:
             if args.post_process and processing_results:
                 print(f"✅ Successfully converted all {total} files")
                 if args.report == "console":
-                    proc = processing_results['processed']
-                    total = processing_results['total']
+                    proc = processing_results["processed"]
+                    total = processing_results["total"]
                     print(f"📋 Post-processing: {proc}/{total} files processed")
             else:
                 print(f"✅ Successfully converted all {total} files")

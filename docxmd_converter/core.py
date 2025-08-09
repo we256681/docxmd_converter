@@ -246,22 +246,30 @@ class DocxMdConverter:
             )
 
             # Initialize processor
-            processor_kwargs = {}
-            if processor_type == "advanced":
-                processor_kwargs = {
-                    "force_reprocess": force_process,
-                    "dry_run": dry_run_process,
-                }
+            if processor_type == "enhanced":
+                from .enhanced_processor import EnhancedDocumentProcessor
 
-            processor = DocumentProcessor(processor_type, **processor_kwargs)
+                processor = EnhancedDocumentProcessor()
 
-            # Process files
-            results = processor.process_directory(
-                process_dir,
-                force=force_process,
-                dry_run=dry_run_process,
-                pattern="*.md",
-            )
+                # Process files directly with enhanced processor
+                results = processor.process_directory(process_dir, force=force_process)
+            else:
+                processor_kwargs = {}
+                if processor_type == "advanced":
+                    processor_kwargs = {
+                        "force_reprocess": force_process,
+                        "dry_run": dry_run_process,
+                    }
+
+                processor = DocumentProcessor(processor_type, **processor_kwargs)
+
+                # Process files
+                results = processor.process_directory(
+                    process_dir,
+                    force=force_process,
+                    dry_run=dry_run_process,
+                    pattern="*.md",
+                )
 
             # Generate report
             reporter = ProcessingReporter()
