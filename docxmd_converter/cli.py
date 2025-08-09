@@ -150,7 +150,7 @@ def main() -> int:
         converter = DocxMdConverter(log_level=log_level)
 
         # Convert files
-        successful, total, processing_results = converter.convert_directory(
+        result = converter.convert_directory(
             src_dir=args.src,
             dst_dir=args.dst,
             format=args.format,
@@ -163,22 +163,35 @@ def main() -> int:
             report_update=args.report_update,
         )
 
-        if successful == total:
-            if args.post_process and processing_results:
-                print(f"✅ Successfully converted all {total} files")
-                if args.report == "console":
-                    proc = processing_results["processed"]
-                    total = processing_results["total"]
-                    print(f"📋 Post-processing: {proc}/{total} files processed")
+        # Support both 2-tuple (successful, total) and 3-tuple (successful, total, processing_results)
+        if isinstance(result, tuple):
+            if len(result) == 3:
+                successful, total, processing_results = result
+            elif len(result) == 2:
+                successful, total = result
+                processing_results = None
             else:
-                print(f"✅ Successfully converted all {total} files")
+                raise ConversionError("Unexpected return value from convert_directory")
+        else:
+            raise ConversionError("convert_directory must return a tuple")
+
+        if successful == total:
+            print(f"✅ Successfully converted all {total} files")
+            if args.post_process and processing_results and args.report == "console":
+                proc = processing_results.get("processed")
+                total_proc = processing_results.get("total")
+                if proc is not None and total_proc is not None:
+                    print(f"📋 Post-processing: {proc}/{total_proc} files processed")
             return 0
         else:
             print(f"⚠️  Converted {successful}/{total} files (some errors occurred)")
-            if args.post_process and processing_results:
-                processed = processing_results["processed"]
-                total_proc = processing_results["total"]
-                print(f"📋 Post-processing: {processed}/{total_proc} files processed")
+            if args.post_process and processing_results and args.report == "console":
+                processed = processing_results.get("processed")
+                total_proc = processing_results.get("total")
+                if processed is not None and total_proc is not None:
+                    print(
+                        f"📋 Post-processing: {processed}/{total_proc} files processed"
+                    )
             return 1
 
     except ConversionError as e:

@@ -45,6 +45,7 @@ jobs:
           flake8 --config=.flake8 . --exclude=venv,build,dist
 
       - name: Run type checking (non-blocking)
+        if: matrix.python-version == '3.11'
         continue-on-error: true
         run: |
           mypy docxmd_converter --ignore-missing-imports

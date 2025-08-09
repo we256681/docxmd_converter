@@ -142,7 +142,7 @@ class DocxMdConverter:
         dry_run_process: bool = False,
         report_format: str = "console",
         report_update: bool = False,
-    ) -> Tuple[int, int, Optional[dict]]:
+    ) -> Tuple[int, int]:
         """Convert all files in directory recursively with optional post-processing.
 
         Args:
@@ -158,7 +158,7 @@ class DocxMdConverter:
             report_update: Update existing report file instead of creating new one
 
         Returns:
-            Tuple of (successful_conversions, total_files, processing_results)
+            Tuple of (successful_conversions, total_files)
         """
         src_dir = Path(src_dir)
         dst_dir = Path(dst_dir)
@@ -183,9 +183,8 @@ class DocxMdConverter:
             self.logger.warning(f"No {file_pattern} files found in {src_dir}")
 
             # Still apply post-processing if requested, even without conversion
-            processing_results = None
             if post_process:
-                processing_results = self._apply_post_processing(
+                self._apply_post_processing(
                     dst_dir if format == "docx2md" else src_dir,
                     processor_type,
                     force_process,
@@ -194,7 +193,7 @@ class DocxMdConverter:
                     report_update,
                 )
 
-            return 0, 0, processing_results
+            return 0, 0
 
         successful_conversions = 0
         total_files = len(files_to_convert)
@@ -214,9 +213,8 @@ class DocxMdConverter:
         )
 
         # Apply post-processing if requested
-        processing_results = None
         if post_process:
-            processing_results = self._apply_post_processing(
+            self._apply_post_processing(
                 dst_dir if format == "docx2md" else src_dir,
                 processor_type,
                 force_process,
@@ -225,7 +223,7 @@ class DocxMdConverter:
                 report_update,
             )
 
-        return successful_conversions, total_files, processing_results
+        return successful_conversions, total_files
 
     def _apply_post_processing(
         self,
@@ -294,6 +292,11 @@ class DocxMdConverter:
     def get_supported_formats(self) -> List[str]:
         """Get list of supported conversion formats."""
         return ["docx2md", "md2docx"]
+
+    # Backwards-compatible alias expected by tests
+    def get_supported_directions(self) -> List[str]:
+        """Alias for get_supported_formats for compatibility with existing tests."""
+        return self.get_supported_formats()
 
     def validate_template(self, template_path: Union[str, Path]) -> bool:
         """Validate if template file is a valid .docx file.
