@@ -300,7 +300,9 @@ class BasicDocumentProcessor(BaseDocumentProcessor):
         structured_content += "### Ознакомление сотрудника\n\n"
         employee_text = "С документом ознакомлен(а), один экземпляр получил(а) на руки и обязуюсь хранить его на рабочем месте.\n\n"
         structured_content += employee_text
-        employee_sig = "**Подпись сотрудника:** _________________ _(инициалы, фамилия)_\n\n"
+        employee_sig = (
+            "**Подпись сотрудника:** _________________ _(инициалы, фамилия)_\n\n"
+        )
         structured_content += employee_sig
         structured_content += "**Дата:** _(дата)_\n\n"
 

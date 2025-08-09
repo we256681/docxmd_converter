@@ -229,7 +229,7 @@ class ProcessingReporter:
         content += "## Рекомендации\n\n"
 
         if results.quality_stats["low"] > 0:
-            low_count = results.quality_stats['low']
+            low_count = results.quality_stats["low"]
             content += f"### 📝 Документы с низким качеством ({low_count} шт.)\n\n"
             recommendation = "Рекомендуется ручная доработка документов с низким качеством обработки:"
             content += f"{recommendation}\n\n"
