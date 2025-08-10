@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-upload me-2"></i>Загрузка и обработка документов</h5>
+            </div>
+            <div class="card-body">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <h5>Перетащите файлы сюда или нажмите для выбора</h5>
+                    <p class="text-muted">Поддерживаемые форматы: DOCX, MD, TXT</p>
+                    <p class="text-muted">Максимальный размер: {{ (max_file_size / 1024 / 1024) | round(1) }} МБ</p>
+                    <input type="file" id="fileInput" multiple accept=".docx,.md,.txt" style="display: none;">
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-folder-open me-2"></i>Выбрать файлы
+                    </button>
+                </div>
+
+                <div id="filesList" class="mt-4" style="display: none;">
+                    <h6>Выбранные файлы:</h6>
+                    <div id="filesContainer"></div>
+                    <button class="btn btn-success mt-3" id="processBtn" onclick="processFiles()">
+                        <i class="fas fa-cogs me-2"></i>Обработать документы
+                    </button>
+                </div>
+
+                <div class="progress-container mt-4" id="progressContainer">
+                    <h6>Обработка...</h6>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="resultsContainer" class="mt-4" style="display: none;">
+                    <h6>Результаты обработки:</h6>
+                    <div id="results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card">
+            <h6><i class="fas fa-chart-bar me-2"></i>Статистика</h6>
+            <div class="row text-center">
+                <div class="col-6">
+                    <h4>{{ statistics.total_processed }}</h4>
+                    <small>Обработано</small>
+                </div>
+                <div class="col-6">
+                    <h4>{{ statistics.avg_quality }}%</h4>
+                    <small>Ср. качество</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-templates me-2"></i>Доступные шаблоны</h6>
+            </div>
+            <div class="card-body">
+                {% for template in templates %}
+                    <span class="badge bg-secondary me-1 mb-1">{{ template }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle me-2"></i>Возможности</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>Автоматическое определение типа</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Интеллектуальная обработка</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Оценка качества</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Извлечение данных</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Улучшение форматирования</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedFiles = [];
+
+// Обработка drag & drop
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+});
+
+function handleFiles(files) {
+    selectedFiles = Array.from(files);
+    displayFiles();
+}
+
+function displayFiles() {
+    const container = document.getElementById('filesContainer');
+    const filesList = document.getElementById('filesList');
+
+    container.innerHTML = '';
+
+    selectedFiles.forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item d-flex justify-content-between align-items-center';
+        fileItem.innerHTML = `
+            <div>
+                <i class="fas fa-file me-2"></i>
+                <strong>${file.name}</strong>
+                <small class="text-muted ms-2">(${(file.size / 1024).toFixed(1)} КБ)</small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        container.appendChild(fileItem);
+    });
+
+    filesList.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    displayFiles();
+}
+
+function processFiles() {
+    if (selectedFiles.length === 0) return;
+
+    const formData = new FormData();
+    selectedFiles.forEach(file => {
+        formData.append('files', file);
+    });
+
+    // Показываем прогресс
+    document.getElementById('progressContainer').style.display = 'block';
+    document.getElementById('processBtn').disabled = true;
+
+    // Загружаем файлы
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обрабатываем файлы
+            return fetch('/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    files: data.files,
+                    options: {}
+                })
+            });
+        } else {
+            throw new Error(data.message);
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        displayResults(data);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Ошибка обработки: ' + error.message);
+    })
+    .finally(() => {
+        document.getElementById('progressContainer').style.display = 'none';
+        document.getElementById('processBtn').disabled = false;
+    });
+}
+
+function displayResults(data) {
+    const container = document.getElementById('results');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    container.innerHTML = '';
+
+    if (data.summary) {
+        const summary = document.createElement('div');
+        summary.className = 'alert alert-info';
+        summary.innerHTML = `
+            <h6><i class="fas fa-chart-pie me-2"></i>Сводка</h6>
+            <div class="row">
+                <div class="col-3">Всего: <strong>${data.summary.total}</strong></div>
+                <div class="col-3">Успешно: <strong>${data.summary.successful}</strong></div>
+                <div class="col-3">Ошибок: <strong>${data.summary.failed}</strong></div>
+                <div class="col-3">Ср. качество: <strong>${data.summary.avg_quality.toFixed(1)}%</strong></div>
+            </div>
+        `;
+        container.appendChild(summary);
+    }
+
+    data.results.forEach(result => {
+        const resultItem = document.createElement('div');
+        resultItem.className = `result-item ${result.success ? '' : 'error'}`;
+
+        if (result.success) {
+            resultItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6><i class="fas fa-check-circle text-success me-2"></i>${result.file}</h6>
+                        <p class="mb-1">
+                            <strong>Тип:</strong> ${result.document_type}
+                            <span class="badge bg-primary ms-2">Уверенность: ${(result.confidence * 100).toFixed(0)}%</span>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Качество:</strong> ${result.quality_score.toFixed(1)}/100
+                            <strong class="ms-3">Улучшений:</strong> ${result.improvements}
+                            <strong class="ms-3">Время:</strong> ${result.processing_time.toFixed(2)}с
+                        </p>
+                    </div>
+                    <a href="/download/${result.output_file}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-download me-1"></i>Скачать
+                    </a>
+                </div>
+            `;
+        } else {
+            resultItem.innerHTML = `
+                <h6><i class="fas fa-exclamation-circle text-danger me-2"></i>${result.file}</h6>
+                <p class="text-danger mb-0">Ошибка: ${result.error}</p>
+            `;
+        }
+
+        container.appendChild(resultItem);
+    });
+
+    if (data.archive_file) {
+        const archiveBtn = document.createElement('div');
+        archiveBtn.className = 'text-center mt-3';
+        archiveBtn.innerHTML = `
+            <a href="/download/${data.archive_file}" class="btn btn-success btn-lg">
+                <i class="fas fa-download me-2"></i>Скачать все результаты (ZIP)
+            </a>
+        `;
+        container.appendChild(archiveBtn);
+    }
+
+    resultsContainer.style.display = 'block';
+}
+</script>
+{% endblock %}

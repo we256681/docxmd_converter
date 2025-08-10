@@ -1,0 +1,112 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      test_pypi:
+        description: 'Publish to Test PyPI only'
+        required: false
+        default: false
+        type: boolean
+      skip_tests:
+        description: 'Skip running tests'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_tests != 'true'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v
+
+    - name: Test Enhanced Processor
+      run: |
+        python -c "from docxmd_converter.enhanced_processor import EnhancedDocumentProcessor; print('✅ Enhanced Processor v' + EnhancedDocumentProcessor().version + ' готов')"
+
+  build-and-publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always() && (needs.test.result == 'success' || needs.test.result == 'skipped')
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Build package
+      run: |
+        python -m build
+
+    - name: Check package
+      run: |
+        twine check dist/*
+
+    - name: List built packages
+      run: |
+        echo "📦 Built packages:"
+        ls -la dist/
+
+    - name: Publish to Test PyPI
+      if: github.event.inputs.test_pypi == 'true'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        echo "📤 Publishing to Test PyPI..."
+        twine upload --repository testpypi dist/*
+        echo "✅ Published to Test PyPI: https://test.pypi.org/project/docxmd-converter/"
+
+    - name: Publish to PyPI
+      if: github.event_name == 'release' && github.event.action == 'published'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        echo "📤 Publishing to PyPI..."
+        twine upload dist/*
+        echo "✅ Published to PyPI: https://pypi.org/project/docxmd-converter/"
+
+    - name: Create build artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: dist-packages
+        path: dist/
+
+    - name: Comment on release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.payload.release.id,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🎉 Package successfully published to PyPI!\n\n📦 Install: `pip install docxmd-converter`\n🔗 PyPI: https://pypi.org/project/docxmd-converter/'
+          })

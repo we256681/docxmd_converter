@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика - Универсальный процессор документов{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-chart-bar me-2"></i>Статистика обработки</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                <h4>{{ statistics.total_processed }}</h4>
+                <p class="text-muted">Всего обработано</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                <h4>{{ statistics.avg_quality }}%</h4>
+                <p class="text-muted">Среднее качество</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-layer-group fa-2x text-info mb-2"></i>
+                <h4>{{ statistics.document_types|length }}</h4>
+                <p class="text-muted">Типов документов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x text-success mb-2"></i>
+                <h4>{{ statistics.recent_activity|length }}</h4>
+                <p class="text-muted">Недавних операций</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Типы документов</h5>
+            </div>
+            <div class="card-body">
+                {% for doc_type, count in statistics.document_types.items() %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ doc_type }}</span>
+                        <span class="badge bg-primary">{{ count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history me-2"></i>Последняя активность</h5>
+            </div>
+            <div class="card-body">
+                {% for activity in statistics.recent_activity[:5] %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ activity.filename }}</strong><br>
+                            <small class="text-muted">{{ activity.document_type }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success">{{ activity.quality_after }}%</span><br>
+                            <small class="text-muted">{{ activity.timestamp[:10] }}</small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

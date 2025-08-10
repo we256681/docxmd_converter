@@ -1,0 +1,34 @@
+# Include essential files
+include README.md
+include README_NEW.md
+include LICENSE
+include requirements.txt
+include pyproject.toml
+include setup.py
+include CHANGELOG.md
+
+# Include source code
+recursive-include src *.py
+recursive-include src *.json
+
+# Include configuration and data
+recursive-include config *.json
+recursive-include data *.json
+recursive-include templates *.html
+
+# Include documentation
+recursive-include docs *.md
+recursive-include examples *.py
+
+# Exclude unwanted files
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+recursive-exclude * *.tmp
+recursive-exclude * *.log
+exclude venv
+exclude .venv
+exclude .git
+exclude .pytest_cache
+exclude .coverage
+exclude htmlcov

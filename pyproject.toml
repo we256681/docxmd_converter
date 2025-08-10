@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docxmd-converter"
+version = "3.1.0"
+authors = [
+    {name = "DocxMD Team", email = "team@docxmd-converter.com"},
+]
+description = "Интеллектуальная система конвертации и обработки документов с NLP-анализом"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Office Suites",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["docx", "markdown", "converter", "nlp", "document-processing", "ai", "intelligent", "quality-assessment"]
+dependencies = [
+    "pypandoc>=1.15",
+    "python-docx>=0.8.11",
+    "flask>=2.3.0",
+    "flask-cors>=4.0.0",
+    "pandas>=1.5.0",
+    "numpy>=1.24.0",
+    "regex>=2023.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "bump2version>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+nlp = [
+    "nltk>=3.8.0",
+    "spacy>=3.6.0",
+    "scikit-learn>=1.3.0",
+]
+all = [
+    "docxmd-converter[dev,nlp]"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/we256681/docxmd_converter"
+"Bug Reports" = "https://github.com/we256681/docxmd_converter/issues"
+"Source" = "https://github.com/we256681/docxmd_converter"
+"Documentation" = "https://github.com/we256681/docxmd_converter#readme"
+
+[project.scripts]
+docxmd-converter = "docxmd_converter.cli:main"
+docxmd-gui = "docxmd_converter.gui:main"
+docxmd-web = "docxmd_converter.web_interface:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["docxmd_converter*"]
+
+[tool.setuptools.package-data]
+docxmd_converter = ["../config/*.json", "../data/*.json"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=docxmd_converter",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
